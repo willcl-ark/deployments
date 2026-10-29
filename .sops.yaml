@@ -1,0 +1,31 @@
+keys:
+  - &yubikey 67AA5B46E7AF78053167FE343B8F814A784218F8
+  - &will age1yggqyza4vmts7uuuuykz42sd8dwqszgcfd6y6avw8ul5pm2ekffsg2gqr2
+  - &old_dnsseed age1ylmkgqk0x9e9tg9nv2kelmqu9k5d7hsahvrqr5sywxcexy34g37sdqg5zf
+  - &nero age1g695llyzvglytzpccdjst3zwlgjmtdvfr6q487hvstyhc4n4es6qn7lhsk
+  - &beelink age1lvxt7fknvgz55pv05u33ezla7dgxkdmcy9vajxumlpz88rqt8fyst4uwgf
+  - &fish_foo age1uknwm3p5hp4fnmhmauj228qrvuf5rv9ntfx0ld06fp5jnpr6h4esc0s8gy
+  - &cdash age1j36kwnp6lrpzzqkk6njsyd5a7hz8zjlwppz60x5s4rqs8f5p8pwsrd6m60
+  - &guix_publish_2 age1fa7qz7utypkq6zrh3gh2ps872570jxgx22mzmfqk7lre74r7faxsyutemv
+
+creation_rules:
+  # Keep the old DNS seed recipient until its retirement is confirmed.
+  # Detached public signatures are deliberately not SOPS files.
+  - path_regex: ^secrets/nero/(secrets\.yaml|dnssec/.*|guix/(signing-key\.(pub|sec)|nero-to-guix-publish-2))$
+    key_groups:
+      - pgp: [*yubikey]
+        age: [*will, *old_dnsseed, *nero]
+  - path_regex: ^secrets/beelink/.*\.yaml$
+    key_groups:
+      - pgp: [*yubikey]
+        age: [*beelink]
+  - path_regex: ^secrets/fish-foo/.*\.yaml$
+    key_groups:
+      - age: [*will, *fish_foo]
+  - path_regex: ^secrets/cdash-server/.*\.sops\.yaml$
+    key_groups:
+      - age: [*will, *cdash]
+  - path_regex: ^secrets/guix-publish-2/signing-key\.(pub|sec)$
+    key_groups:
+      - pgp: [*yubikey]
+        age: [*will, *guix_publish_2]
