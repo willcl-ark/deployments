@@ -1,0 +1,64 @@
+set shell := ["bash", "-euc"]
+
+target := "root@nero"
+ssh_port := "2222"
+
+[private]
+default:
+    @just --list
+
+ssh:
+    ssh -p {{ ssh_port }} {{ target }}
+
+# Follow DNS seed logs.
+logs network="mainnet":
+    ssh -p {{ ssh_port }} {{ target }} {{ quote("systemctl status dnsseedrs-" + quote(network) + " && journalctl -f -u dnsseedrs-" + quote(network)) }}
+
+# Report the DNS seed's total node count.
+db-stats network="mainnet":
+    ssh -p {{ ssh_port }} {{ target }} {{ quote("nix shell --quiet nixpkgs#sqlite -c sqlite3 " + quote("/var/lib/dnsseedrs/" + network + "/sqlite.db") + " 'SELECT COUNT(*) FROM nodes;'") }}
+
+# Test Nero's configured Guix offload machines.
+guix-offload-test:
+    ssh -p {{ ssh_port }} {{ target }} 'guix offload test'
+
+guix-worker-logs:
+    ssh -p {{ ssh_port }} {{ target }} 'systemctl status guix-bitcoin-worker.service --no-pager || true; journalctl -fu guix-bitcoin-worker.service'
+
+guix-worker-start:
+    ssh -p {{ ssh_port }} {{ target }} 'systemctl start --no-block guix-bitcoin-worker.service'
+
+# Show worker state and queued/running source jobs.
+guix-queue:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    ssh -p {{ ssh_port }} {{ target }} '
+        jobs_root=/gnu/guix-bitcoin/jobs
+        worker_state=$(systemctl is-active guix-bitcoin-worker.service 2>/dev/null || true)
+        printf "worker: %s\n" "${worker_state:-unknown}"
+        for state in queued running; do
+            printf "\n%s:\n" "$state"
+            found=false
+            for job in "$jobs_root/$state"/*; do
+                [ -d "$job" ] || continue
+                found=true
+                printf "  %s\n" "${job##*/}"
+                if [ -f "$job/source_repository" ] && [ -f "$job/source_commit" ]; then
+                    printf "    source_repository=%s\n" "$(cat "$job/source_repository")"
+                    printf "    source_commit=%s\n" "$(cat "$job/source_commit")"
+                else
+                    printf "    (missing source descriptor)\n"
+                fi
+            done
+            [ "$found" = true ] || printf "  (empty)\n"
+        done
+    '
+
+# Submit an exact Bitcoin Core commit, optionally from a fork repository.
+guix-submit commit repository="https://github.com/bitcoin/bitcoin":
+    @[[ {{ quote(commit) }} =~ ^[0-9a-f]{40}$ ]] || { echo "commit must be a full lowercase 40-character hash" >&2; exit 2; }
+    ssh -p {{ ssh_port }} {{ target }} {{ quote("GUIX_BITCOIN_REPOSITORY=" + quote(repository) + " /run/current-system/sw/bin/guix-bitcoin-submit " + quote(commit)) }}
+    ssh -p {{ ssh_port }} {{ target }} 'systemctl start --no-block guix-bitcoin-worker.service'
+
+guix-submit-master:
+    ssh -p {{ ssh_port }} {{ target }} 'systemctl start --no-block guix-bitcoin-nightly.service'

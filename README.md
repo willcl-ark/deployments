@@ -70,6 +70,35 @@ this input depends on its local path and the flake is not fully portable. Run
 `nix flake update fish-app-src` after intentionally updating the application.
 Other reusable services come from pinned module repositories.
 
+## Host operations
+
+Host-specific commands live in `hosts/<name>/justfile`, loaded as native just
+modules. The root justfile only declares their namespaces:
+
+```sh
+just nero                         # List Nero commands
+just nero logs signet
+just nero guix-queue
+just nero guix-submit COMMIT
+just beelink status
+just beelink bench-submit COMMIT
+just guix-arm-builder status
+just fish-foo ssh
+just --dry-run beelink services restart
+```
+
+These recipes manage the configured hosts over SSH. Nero's former `arm-status`
+and `arm-poweroff` are now `just guix-arm-builder status` and
+`just guix-arm-builder poweroff`. Use `just switch guix-arm-builder` to update
+that host. Deployment recipes remain at the top level.
+
+Application helpers stay with their source: Nero's Python-backed `review-pr`
+remains in `/home/will/src/nero`, and benchmark dashboard previews remain in
+`/home/will/src/core/ci`. The old dashboard sync/update recipes target
+`/etc/nixos/jobs`; they do not update this deployment's pinned CI application.
+Change the application source and update `bitcoin-core-ci` instead. Pin updates
+use `nix flake update INPUT`, for example `nix flake update nero-will-nix`.
+
 ## First installation
 
 `deploy` uses nixos-anywhere and erases the disks declared by the host's Disko

@@ -1,0 +1,39 @@
+set shell := ["bash", "-euc"]
+
+target := "root@beelink"
+units := "ci-runner.service ci-nightly-bitcoin-enqueue.service ci-watch-bitcoin-guix.service ci-watch-bitcoin-valgrind-fuzz.service ci-watch-bitcoin-bench.service ci-bitcoin-bench-run.service"
+
+[private]
+default:
+    @just --list
+
+ssh:
+    ssh {{ target }}
+
+logs:
+    ssh {{ target }} 'journalctl -f -o short-iso -u ci-runner.service -u ci-nightly-bitcoin-enqueue.service -u ci-watch-bitcoin-guix.service -u ci-watch-bitcoin-valgrind-fuzz.service -u ci-watch-bitcoin-bench.service -u ci-bitcoin-bench-run.service'
+
+status:
+    ssh {{ target }} 'systemctl --no-pager --full status {{ units }}'
+
+nightly-start:
+    ssh {{ target }} 'systemctl start ci-nightly-bitcoin-enqueue.service'
+
+# Enqueue a priority Guix build with an optional build-name description.
+guix-submit revision description="":
+    @[[ {{ quote(revision) }} =~ ^[0-9a-fA-F]{40}$ ]] || { echo "revision must be a full 40-character hexadecimal commit ID" >&2; exit 2; }
+    ssh {{ target }} {{ quote("sudo -u ci-runner ci-runner --queue-dir /var/lib/ci-runner/queue enqueue bitcoin-guix --kind manual --revision " + quote(revision) + " --description " + quote(description)) }}
+
+bench-submit revision:
+    @[[ {{ quote(revision) }} =~ ^[0-9a-fA-F]{40}$ ]] || { echo "revision must be a full 40-character hexadecimal commit ID" >&2; exit 2; }
+    ssh {{ target }} {{ quote("sudo -u ci-runner ci-runner --queue-dir /var/lib/ci-runner/queue enqueue bitcoin-bench --kind manual --revision " + quote(revision)) }}
+
+queue-status:
+    ssh {{ target }} 'sudo -u ci-runner ci-runner --queue-dir /var/lib/ci-runner/queue status'
+
+queue-cancel job_id:
+    ssh {{ target }} {{ quote("sudo -u ci-runner ci-runner --queue-dir /var/lib/ci-runner/queue cancel " + quote(job_id)) }}
+
+# Start/stop/restart the CI runner, watchers and build services.
+services command:
+    ssh {{ target }} {{ quote("systemctl " + quote(command) + " " + units) }}

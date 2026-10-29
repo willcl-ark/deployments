@@ -1,5 +1,10 @@
 set positional-arguments
 
+mod nero 'hosts/nero/justfile'
+mod beelink 'hosts/beelink/justfile'
+mod guix-arm-builder 'hosts/guix-arm-builder/justfile'
+mod fish-foo 'hosts/fish-foo/justfile'
+
 default:
     @just --list
 
