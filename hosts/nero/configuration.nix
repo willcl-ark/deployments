@@ -326,7 +326,7 @@ in
     pushToRemotes = [
       {
         name = "forgejo";
-        remote = "https://git.fish.foo/willcl-ark/github-metadata-backup-bitcoin-bitcoin.git";
+        remote = "${forgejoLocalUrl}/willcl-ark/github-metadata-backup-bitcoin-bitcoin.git";
         user = "willcl-ark";
         tokenFile = config.sops.secrets.github-metadata-backup-forgejo-token.path;
       }
