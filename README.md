@@ -42,14 +42,23 @@ Commands require a current lock file and do not update pins automatically.
 - `hosts/<name>/`: hardware, networking and service configuration.
 - `packages/`: shared package definitions, currently Caddy with Cloudflare DNS.
 - `modules/common.nix`: shared defaults, overridable by host definitions.
+- `public-keys/will.pub`: admin SSH public key shared by all hosts.
 - `modules/ci-runner.nix`: CI queue runner service and its account/directories.
 - `modules/dnsseed.nix`: Nero's DNS seed and Caddy configuration.
 - `secrets/<host>/`: encrypted files and public signatures.
 - `.sops.yaml`: recipient rules scoped to those paths.
 
-The common module enables SSH and flakes. Differing timezone, locale, packages
-and authentication policies remain host-specific pending agreement on defaults.
-Keep `system.stateVersion` at its existing value when changing nixpkgs.
+The common module sets UTC, `en_GB.UTF-8`, SSH key authentication, flakes and
+the shared tools: Git, htop, curl and Ghostty terminfo. It grants the admin key
+root access by default. CDash instead grants that same key to `will` with sudo
+and disables root SSH. ARM retains its separate builder key as well.
+
+Add settings or tools in `modules/common.nix` to apply them everywhere. Host
+package lists add to the shared list. Ordinary host settings override the
+common `lib.mkDefault` values, for example `time.timeZone = "Europe/London";`.
+Editors, service packages, users, network configuration and SSH port exceptions
+remain in host files. Keep `system.stateVersion` at its existing value when
+changing nixpkgs.
 
 Beelink imports application code from the pinned `bitcoin-core-ci` input. Its
 runtime CI jobs use that repository's flake and toolchain pins. Fish's application

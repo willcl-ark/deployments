@@ -183,21 +183,13 @@ in
     };
   };
 
-  services.openssh.settings.PermitRootLogin = "prohibit-password";
-
-  users.users.root.openssh.authorizedKeys.keys = settings.sshKeys;
-
   documentation.enable = false;
   fonts.fontconfig.enable = false;
 
   environment.systemPackages = with pkgs; [
     neovim
-    git
-    htop
-    curl
     age
   ];
 
-  time.timeZone = "UTC";
   system.stateVersion = "25.11";
 }

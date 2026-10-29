@@ -29,6 +29,8 @@
   users.mutableUsers = false;
   users.users = {
     root.hashedPassword = "!";
+    # Administration uses will with sudo, not root SSH.
+    root.openssh.authorizedKeys.keyFiles = [ ];
   } // lib.mapAttrs (_: keys: {
     isNormalUser = true;
     extraGroups = [ "wheel" ];
@@ -41,8 +43,6 @@
   services.openssh = {
     settings = {
       PermitRootLogin = "no";
-      PasswordAuthentication = false;
-      KbdInteractiveAuthentication = false;
       AllowUsers = builtins.attrNames host.ssh.users;
       X11Forwarding = false;
     };

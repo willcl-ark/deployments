@@ -4,19 +4,6 @@
   ...
 }:
 {
-  boot.loader.grub = {
-    efiSupport = true;
-    efiInstallAsRemovable = true;
-  };
-
-  services.openssh = {
-    settings.PasswordAuthentication = false;
-  };
-
-  users.users.root.openssh.authorizedKeys.keys = [
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH988C5DbEPHfoCphoW23MWq9M6fmA4UTXREiZU0J7n0 will.hetzner@temp.com"
-  ];
-
   sops = {
     defaultSopsFile = ../secrets/nero/secrets.yaml;
     age.keyFile = "/var/lib/sops-nix/key.txt";
@@ -64,17 +51,8 @@
     ];
   };
 
-  environment.systemPackages = [
-    pkgs.git
-    pkgs.ghostty.terminfo
-    pkgs.htop
-  ];
-
   networking.firewall.allowedTCPPorts = [
-    22
     80
     443
   ];
-
-  system.stateVersion = "25.11";
 }

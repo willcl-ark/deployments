@@ -22,12 +22,7 @@
     efiInstallAsRemovable = true;
   };
 
-  services.openssh = {
-    settings.PasswordAuthentication = false;
-  };
-
   users.users.root.openssh.authorizedKeys.keys = [
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH988C5DbEPHfoCphoW23MWq9M6fmA4UTXREiZU0J7n0 will.hetzner@temp.com"
     # Allows Nero to run `guix copy` to this publisher.
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHEdZrzXxbJ7DhKaYH6GZpz0jdMsv7ajRI9VCVnELtg6 root@nero guix copy"
   ];

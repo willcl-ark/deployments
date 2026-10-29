@@ -60,9 +60,6 @@ in
     ];
   };
 
-  time.timeZone = "Europe/London";
-  i18n.defaultLocale = "en_GB.UTF-8";
-
   services.guix = {
     enable = true;
     package = pkgs.guix;
@@ -73,18 +70,14 @@ in
     age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
   };
 
-  users.users.root.openssh.authorizedKeys.keys = [
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH988C5DbEPHfoCphoW23MWq9M6fmA4UTXREiZU0J7n0 will.hetzner@temp.com"
-  ];
-
   users.users.will = {
     isNormalUser = true;
     extraGroups = [
       "networkmanager"
       "wheel"
     ];
-    openssh.authorizedKeys.keys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH988C5DbEPHfoCphoW23MWq9M6fmA4UTXREiZU0J7n0 will.hetzner@temp.com"
+    openssh.authorizedKeys.keyFiles = [
+      ../../public-keys/will.pub
     ];
   };
 
@@ -101,7 +94,6 @@ in
   hardware.enableRedistributableFirmware = true;
 
   environment.systemPackages = with pkgs; [
-    git
     vim
   ];
 

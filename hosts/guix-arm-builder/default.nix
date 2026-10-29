@@ -2,7 +2,6 @@
   config,
   inputs,
   options,
-  pkgs,
   ...
 }:
 {
@@ -19,10 +18,6 @@
     devices = [ "nodev" ];
     efiSupport = true;
     efiInstallAsRemovable = true;
-  };
-
-  services.openssh = {
-    settings.PasswordAuthentication = false;
   };
 
   # The root account is used for Guix offload because guix-daemon launches the
@@ -68,12 +63,6 @@
       "--free-space=20G"
     ];
   };
-
-  environment.systemPackages = [
-    pkgs.git
-    pkgs.htop
-  ];
-
 
   system.stateVersion = "26.05";
 }

@@ -9,7 +9,7 @@
     # Local private key path, used by the deployment commands only.
     identityFile = "~/.ssh/hetzner-temp";
     users.will = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH988C5DbEPHfoCphoW23MWq9M6fmA4UTXREiZU0J7n0 will.hetzner@temp.com"
+      (builtins.readFile ../../../public-keys/will.pub)
     ];
   };
   kexecExtraFlags = "--kexec-syscall";

@@ -9,6 +9,11 @@ All six complete system closures built locally without activation:
 - guix-publish-2
 - guix-arm-builder
 
+The builds were repeated after introducing the shared UTC/UK-locale, SSH and
+admin-tool baseline. Evaluated assertions confirmed the shared admin key on
+every host, CDash's will/root distinction, unchanged SSH ports and retained
+host editors. ARM's builder key and the publisher's Nero copy key remain.
+
 Every host uses nixpkgs revision
 `31ecbaca1bdefa45dffc409f0250bd8039ea0010`. Existing stateVersion values remain
 25.11, except CDash and ARM which remain 26.05.

@@ -24,6 +24,13 @@ in
     ./tailscale.nix
   ];
 
+  boot.loader.grub = {
+    efiSupport = true;
+    efiInstallAsRemovable = true;
+  };
+
+  system.stateVersion = "25.11";
+
   networking.hostName = "nero";
   networking.useDHCP = true;
   networking.interfaces.enp6s0.ipv6.addresses = [
@@ -66,7 +73,10 @@ in
     Match LocalPort 22
       DenyUsers root
   '';
-  networking.firewall.allowedTCPPorts = [ 2222 ];
+  networking.firewall.allowedTCPPorts = [
+    22
+    2222
+  ];
 
   sops.secrets.github-metadata-backup-github-token = {
     owner = "gmb-bitcoin";
