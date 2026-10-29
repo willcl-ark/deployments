@@ -129,6 +129,7 @@
         default = pkgs.mkShell {
           packages = with pkgs; [
             just
+            rsync
             nixos-rebuild
             nixos-anywhere
             openssh

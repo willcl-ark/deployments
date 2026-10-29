@@ -14,6 +14,7 @@ just build nero
 just switch nero
 just switch beelink
 just switch all
+just switch-remote nero
 ```
 
 `switch` evaluates locally, builds on the target, and activates there with
@@ -21,6 +22,19 @@ just switch all
 It does not synchronize or overwrite `/etc/nixos`. Run future deployments here.
 SSH aliases and identities come from your SSH configuration, with Nero's port
 2222 and the ARM and CDash identity paths set in their just recipes.
+
+`switch-remote HOST` rsyncs the working tree into `/var/lib/nixos-deployments`
+and runs `nixos-rebuild` there over SSH. Evaluation, dependency downloads,
+compilation and activation all happen on the server, reducing laptop traffic.
+The sync includes uncommitted edits, excludes `.git` and gitignored files, and
+deletes stale files from that dedicated directory. It leaves `/etc/nixos` alone.
+CDash uses sudo for both the sync and rebuild. No lock pins are updated.
+
+`switch-remote all` currently covers Nero, Beelink, CDash and guix-publish-2.
+Use `switch-remote guix-arm-builder` explicitly when ARM is running. Remote
+switching for fish.foo is deferred until its local application input is
+published; use the existing `switch fish-foo` meanwhile. Preview the commands
+with `just --dry-run switch-remote-all` or `just --dry-run switch-remote-nero`.
 
 `switch all` updates the five always-on hosts sequentially and stops on the
 first error. It does not roll back hosts already updated. The ARM builder is

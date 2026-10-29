@@ -63,6 +63,44 @@ switch-guix-publish-2:
 switch-guix-arm-builder:
     NIX_SSHOPTS="-i $HOME/.ssh/guix-builder-aarch64.pem" nixos-rebuild switch --flake .#guix-arm-builder --build-host root@arm-guix-builder --target-host root@arm-guix-builder --no-reexec --no-update-lock-file
 
+# Rsync, then evaluate and switch on the host.
+switch-remote host:
+    @just switch-remote-"$1"
+
+# Update ready hosts; excludes fish.foo and ARM.
+[private]
+switch-remote-all: switch-remote-nero switch-remote-beelink switch-remote-cdash-server switch-remote-guix-publish-2
+
+# Sync and switch Nero remotely.
+[private]
+switch-remote-nero:
+    rsync -az --delete --mkpath --exclude='.git' --filter=':- .gitignore' -e 'ssh -p 2222' ./ root@nero:/var/lib/nixos-deployments/
+    ssh -p 2222 root@nero 'nixos-rebuild switch --flake path:/var/lib/nixos-deployments#nero --no-update-lock-file'
+
+# Sync and switch Beelink remotely.
+[private]
+switch-remote-beelink:
+    rsync -az --delete --mkpath --exclude='.git' --filter=':- .gitignore' ./ root@beelink:/var/lib/nixos-deployments/
+    ssh root@beelink 'nixos-rebuild switch --flake path:/var/lib/nixos-deployments#beelink --no-update-lock-file'
+
+# Sync and switch CDash through sudo.
+[private]
+switch-remote-cdash-server:
+    rsync -az --delete --mkpath --exclude='.git' --filter=':- .gitignore' -e "ssh -i $HOME/.ssh/hetzner-temp" --rsync-path='sudo -n rsync' ./ will@46.225.46.115:/var/lib/nixos-deployments/
+    ssh -i "$HOME/.ssh/hetzner-temp" will@46.225.46.115 'sudo -n nixos-rebuild switch --flake path:/var/lib/nixos-deployments#cdash-server --no-update-lock-file'
+
+# Sync and switch the Guix publisher remotely.
+[private]
+switch-remote-guix-publish-2:
+    rsync -az --delete --mkpath --exclude='.git' --filter=':- .gitignore' ./ root@guix-publish-2:/var/lib/nixos-deployments/
+    ssh root@guix-publish-2 'nixos-rebuild switch --flake path:/var/lib/nixos-deployments#guix-publish-2 --no-update-lock-file'
+
+# Sync and switch ARM when running.
+[private]
+switch-remote-guix-arm-builder:
+    rsync -az --delete --mkpath --exclude='.git' --filter=':- .gitignore' -e "ssh -i $HOME/.ssh/guix-builder-aarch64.pem" ./ root@arm-guix-builder:/var/lib/nixos-deployments/
+    ssh -i "$HOME/.ssh/guix-builder-aarch64.pem" root@arm-guix-builder 'nixos-rebuild switch --flake path:/var/lib/nixos-deployments#guix-arm-builder --no-update-lock-file'
+
 # Install a host, erasing its disks; see README.
 deploy host:
     @just deploy-"$1"
