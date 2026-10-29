@@ -273,6 +273,19 @@
         "type": "github"
       }
     },
+    "fish-app-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793263647,
+        "narHash": "sha256-6Da4mhwxXx0n06SuoyTd5+pynASF0jlxCbgtot/hrkU=",
+        "path": "/home/will/src/fish.foo",
+        "type": "path"
+      },
+      "original": {
+        "path": "/home/will/src/fish.foo",
+        "type": "path"
+      }
+    },
     "fish-disko": {
       "inputs": {
         "nixpkgs": [
@@ -646,6 +659,7 @@
         "cdash-nixpkgs": "cdash-nixpkgs",
         "cdash-sops-nix": "cdash-sops-nix",
         "cdash-will-nix": "cdash-will-nix",
+        "fish-app-src": "fish-app-src",
         "fish-disko": "fish-disko",
         "fish-nixpkgs": "fish-nixpkgs",
         "fish-sops-nix": "fish-sops-nix",
