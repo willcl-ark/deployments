@@ -3,10 +3,12 @@ set shell := ["bash", "-euc"]
 target := "root@nero"
 ssh_port := "2222"
 
+# List Nero commands.
 [private]
 default:
     @just --list
 
+# Open an SSH session.
 ssh:
     ssh -p {{ ssh_port }} {{ target }}
 
@@ -14,21 +16,23 @@ ssh:
 logs network="mainnet":
     ssh -p {{ ssh_port }} {{ target }} {{ quote("systemctl status dnsseedrs-" + quote(network) + " && journalctl -f -u dnsseedrs-" + quote(network)) }}
 
-# Report the DNS seed's total node count.
+# Count DNS seed nodes.
 db-stats network="mainnet":
     ssh -p {{ ssh_port }} {{ target }} {{ quote("nix shell --quiet nixpkgs#sqlite -c sqlite3 " + quote("/var/lib/dnsseedrs/" + network + "/sqlite.db") + " 'SELECT COUNT(*) FROM nodes;'") }}
 
-# Test Nero's configured Guix offload machines.
+# Test Guix offload connections.
 guix-offload-test:
     ssh -p {{ ssh_port }} {{ target }} 'guix offload test'
 
+# Follow Guix worker logs.
 guix-worker-logs:
     ssh -p {{ ssh_port }} {{ target }} 'systemctl status guix-bitcoin-worker.service --no-pager || true; journalctl -fu guix-bitcoin-worker.service'
 
+# Start the Guix worker now.
 guix-worker-start:
     ssh -p {{ ssh_port }} {{ target }} 'systemctl start --no-block guix-bitcoin-worker.service'
 
-# Show worker state and queued/running source jobs.
+# Show queued and running Guix jobs.
 guix-queue:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -54,11 +58,12 @@ guix-queue:
         done
     '
 
-# Submit an exact Bitcoin Core commit, optionally from a fork repository.
+# Queue a commit for a Guix build.
 guix-submit commit repository="https://github.com/bitcoin/bitcoin":
     @[[ {{ quote(commit) }} =~ ^[0-9a-f]{40}$ ]] || { echo "commit must be a full lowercase 40-character hash" >&2; exit 2; }
     ssh -p {{ ssh_port }} {{ target }} {{ quote("GUIX_BITCOIN_REPOSITORY=" + quote(repository) + " /run/current-system/sw/bin/guix-bitcoin-submit " + quote(commit)) }}
     ssh -p {{ ssh_port }} {{ target }} 'systemctl start --no-block guix-bitcoin-worker.service'
 
+# Queue the latest Bitcoin Core master.
 guix-submit-master:
     ssh -p {{ ssh_port }} {{ target }} 'systemctl start --no-block guix-bitcoin-nightly.service'

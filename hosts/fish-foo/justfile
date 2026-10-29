@@ -1,6 +1,8 @@
+# List fish.foo commands.
 [private]
 default:
     @just --list
 
+# Open an SSH session.
 ssh:
     ssh root@fish.foo

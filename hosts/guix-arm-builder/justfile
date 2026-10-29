@@ -3,15 +3,19 @@ set shell := ["bash", "-euc"]
 target := "root@arm-guix-builder"
 identity := env("HOME") + "/.ssh/guix-builder-aarch64.pem"
 
+# List ARM builder commands.
 [private]
 default:
     @just --list
 
+# Open an SSH session.
 ssh:
     ssh -i {{ quote(identity) }} {{ target }}
 
+# Show Guix and SSH service status.
 status:
     ssh -i {{ quote(identity) }} {{ target }} 'systemctl status guix-daemon.service sshd.service --no-pager'
 
+# Shut down the ARM builder.
 poweroff:
     ssh -i {{ quote(identity) }} {{ target }} 'systemctl poweroff'
