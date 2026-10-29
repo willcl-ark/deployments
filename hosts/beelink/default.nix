@@ -63,7 +63,6 @@ in
   time.timeZone = "Europe/London";
   i18n.defaultLocale = "en_GB.UTF-8";
 
-  services.openssh.enable = true;
   services.guix = {
     enable = true;
     package = pkgs.guix;
@@ -92,10 +91,6 @@ in
   security.sudo.wheelNeedsPassword = false;
 
   nix.settings = {
-    experimental-features = [
-      "nix-command"
-      "flakes"
-    ];
     trusted-users = [
       "root"
       "will"

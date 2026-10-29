@@ -27,10 +27,6 @@ in
   boot.loader.grub.efiSupport = true;
   boot.loader.grub.efiInstallAsRemovable = true;
 
-  nix.settings.experimental-features = [
-    "nix-command"
-    "flakes"
-  ];
 
   networking.hostName = settings.hostName;
   networking.useDHCP = false;
@@ -189,7 +185,6 @@ in
     };
   };
 
-  services.openssh.enable = true;
   services.openssh.settings.PermitRootLogin = "prohibit-password";
 
   users.users.root.openssh.authorizedKeys.keys = settings.sshKeys;

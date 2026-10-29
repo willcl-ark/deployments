@@ -39,7 +39,6 @@
   security.sudo.wheelNeedsPassword = false;
 
   services.openssh = {
-    enable = true;
     settings = {
       PermitRootLogin = "no";
       PasswordAuthentication = false;
@@ -54,6 +53,5 @@
     "kernel.dmesg_restrict" = 1;
   };
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
   system.stateVersion = "26.05";
 }

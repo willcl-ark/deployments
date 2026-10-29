@@ -22,7 +22,6 @@
   };
 
   services.openssh = {
-    enable = true;
     settings.PasswordAuthentication = false;
   };
 
@@ -75,10 +74,6 @@
     pkgs.htop
   ];
 
-  nix.settings.experimental-features = [
-    "nix-command"
-    "flakes"
-  ];
 
   system.stateVersion = "26.05";
 }

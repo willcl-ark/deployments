@@ -17,7 +17,6 @@ in
   };
 
   services.openssh = {
-    enable = true;
     settings.PasswordAuthentication = false;
   };
 
@@ -72,11 +71,6 @@ in
     ];
   };
 
-  # Required for remote nixos-rebuild switch via justfile.
-  nix.settings.experimental-features = [
-    "nix-command"
-    "flakes"
-  ];
   environment.systemPackages = [
     pkgs.git
     pkgs.ghostty.terminfo
