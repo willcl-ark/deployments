@@ -3,13 +3,6 @@
   pkgs,
   ...
 }:
-let
-  caddyWithCloudflare = pkgs.caddy.withPlugins {
-    plugins = [ "github.com/caddy-dns/cloudflare@v0.2.3" ];
-    hash = "sha256-8KwWkxhCyz7cxRFjm47tUS/veVH7cVzv/+FQ16ri3jE=";
-  };
-
-in
 {
   boot.loader.grub = {
     efiSupport = true;
@@ -39,7 +32,7 @@ in
 
   services.caddy = {
     enable = true;
-    package = caddyWithCloudflare;
+    package = pkgs.callPackage ../packages/caddy-cloudflare.nix { };
     globalConfig = ''
       acme_dns cloudflare {$CLOUDFLARE_API_TOKEN}
       servers {

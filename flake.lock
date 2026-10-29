@@ -1,41 +1,5 @@
 {
   "nodes": {
-    "beelink-nixpkgs": {
-      "locked": {
-        "lastModified": 1778430510,
-        "narHash": "sha256-Ti+ZBvW6yrWWAg2szExVTwCd4qOJ3KlVr1tFHfyfi8Q=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "8fd9daa3db09ced9700431c5b7ad0e8ba199b575",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixos-25.11",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "beelink-sops-nix": {
-      "inputs": {
-        "nixpkgs": [
-          "beelink-nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1777944972,
-        "narHash": "sha256-VfGRo1qTBKOe3s2gOv8LSoA6Fk19PvBlwQ1ECN0Evn8=",
-        "owner": "Mic92",
-        "repo": "sops-nix",
-        "rev": "c591bf665727040c6cc5cb409079acb22dcce33c",
-        "type": "github"
-      },
-      "original": {
-        "owner": "Mic92",
-        "repo": "sops-nix",
-        "type": "github"
-      }
-    },
     "bitcoin-core-bench": {
       "inputs": {
         "nixpkgs": [
@@ -200,7 +164,7 @@
     "cdash-disko": {
       "inputs": {
         "nixpkgs": [
-          "cdash-nixpkgs"
+          "nixpkgs"
         ]
       },
       "locked": {
@@ -217,46 +181,10 @@
         "type": "github"
       }
     },
-    "cdash-nixpkgs": {
-      "locked": {
-        "lastModified": 1791765022,
-        "narHash": "sha256-ZGq3ptZzA+oO0N/Wi/F+GbuTijLkYExD01LvpNFAvr0=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "7993f34ee47e28a3d607a525aadc6c94b73be728",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixos-26.05",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "cdash-sops-nix": {
-      "inputs": {
-        "nixpkgs": [
-          "cdash-nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1791710405,
-        "narHash": "sha256-mVD4XIc5JkqMW2K04IkFUzHgHmyJZlzw5ktfgMDCbKU=",
-        "owner": "Mic92",
-        "repo": "sops-nix",
-        "rev": "ee48786c6f9160d2c1a084aac841f68195b8420c",
-        "type": "github"
-      },
-      "original": {
-        "owner": "Mic92",
-        "repo": "sops-nix",
-        "type": "github"
-      }
-    },
     "cdash-will-nix": {
       "inputs": {
         "nixpkgs": [
-          "cdash-nixpkgs"
+          "nixpkgs"
         ]
       },
       "locked": {
@@ -289,7 +217,7 @@
     "fish-disko": {
       "inputs": {
         "nixpkgs": [
-          "fish-nixpkgs"
+          "nixpkgs"
         ]
       },
       "locked": {
@@ -303,42 +231,6 @@
       "original": {
         "owner": "nix-community",
         "repo": "disko",
-        "type": "github"
-      }
-    },
-    "fish-nixpkgs": {
-      "locked": {
-        "lastModified": 1774244481,
-        "narHash": "sha256-4XfMXU0DjN83o6HWZoKG9PegCvKvIhNUnRUI19vzTcQ=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "4590696c8693fea477850fe379a01544293ca4e2",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixos-25.11",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "fish-sops-nix": {
-      "inputs": {
-        "nixpkgs": [
-          "fish-nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1774303811,
-        "narHash": "sha256-fhG4JAcLgjKwt+XHbjs8brpWnyKUfU4LikLm3s0Q/ic=",
-        "owner": "Mic92",
-        "repo": "sops-nix",
-        "rev": "614e256310e0a4f8a9ccae3fa80c11844fba7042",
-        "type": "github"
-      },
-      "original": {
-        "owner": "Mic92",
-        "repo": "sops-nix",
         "type": "github"
       }
     },
@@ -367,7 +259,7 @@
     "guix-disko": {
       "inputs": {
         "nixpkgs": [
-          "guix-nixpkgs"
+          "nixpkgs"
         ]
       },
       "locked": {
@@ -384,46 +276,10 @@
         "type": "github"
       }
     },
-    "guix-nixpkgs": {
-      "locked": {
-        "lastModified": 1787042014,
-        "narHash": "sha256-lgnV/xeEatfEnPZG0RrXS0fhcr63p3tsVvL1GdaVkJQ=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "c69ae8fb8faeb3472fd11234ba55a70ac3601f9b",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixos-26.05",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "guix-sops-nix": {
-      "inputs": {
-        "nixpkgs": [
-          "guix-nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1786629091,
-        "narHash": "sha256-gkig4nPi1CWc4Z50GBsjE4ygSE7hMpl/TwID2an2Cck=",
-        "owner": "Mic92",
-        "repo": "sops-nix",
-        "rev": "a8627b21b9107c5711c96b84f32a9a4b3d45295f",
-        "type": "github"
-      },
-      "original": {
-        "owner": "Mic92",
-        "repo": "sops-nix",
-        "type": "github"
-      }
-    },
     "guix-will-nix": {
       "inputs": {
         "nixpkgs": [
-          "guix-nixpkgs"
+          "nixpkgs"
         ]
       },
       "locked": {
@@ -468,7 +324,7 @@
     "nero-b10c-nix": {
       "inputs": {
         "nixpkgs": [
-          "nero-nixpkgs"
+          "nixpkgs"
         ]
       },
       "locked": {
@@ -488,7 +344,7 @@
     "nero-disko": {
       "inputs": {
         "nixpkgs": [
-          "nero-nixpkgs"
+          "nixpkgs"
         ]
       },
       "locked": {
@@ -541,7 +397,7 @@
     "nero-niks3": {
       "inputs": {
         "nixpkgs": [
-          "nero-nixpkgs"
+          "nixpkgs"
         ],
         "treefmt-nix": "treefmt-nix"
       },
@@ -559,48 +415,12 @@
         "type": "github"
       }
     },
-    "nero-nixpkgs": {
-      "locked": {
-        "lastModified": 1792898606,
-        "narHash": "sha256-Mg3rRjsbMqhSMxop5PYMXos8SwAjejrxSgVThTvP9eg=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "1f607aa79b6356ed45d3cd3c8079c196e79efa2c",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixos-26.05",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nero-sops-nix": {
-      "inputs": {
-        "nixpkgs": [
-          "nero-nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1793052255,
-        "narHash": "sha256-Y/JIHTnMlOabDfyaSBubWGLDIVGihLEUuoMhFvQKaDo=",
-        "owner": "Mic92",
-        "repo": "sops-nix",
-        "rev": "60182817ee048ac94b4c68ea76d5ef2e8aac730d",
-        "type": "github"
-      },
-      "original": {
-        "owner": "Mic92",
-        "repo": "sops-nix",
-        "type": "github"
-      }
-    },
     "nero-will-nix": {
       "inputs": {
         "bix": "bix",
         "llm-agents": "llm-agents",
         "nixpkgs": [
-          "nero-nixpkgs"
+          "nixpkgs"
         ]
       },
       "locked": {
@@ -650,31 +470,39 @@
         "type": "github"
       }
     },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1793110635,
+        "narHash": "sha256-dhoW6VgFWlaodSY5jrBn+CF2FLmaUvDVgM7+C7T2+NM=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "31ecbaca1bdefa45dffc409f0250bd8039ea0010",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
-        "beelink-nixpkgs": "beelink-nixpkgs",
-        "beelink-sops-nix": "beelink-sops-nix",
         "bitcoin-core-ci": "bitcoin-core-ci",
         "cdash-disko": "cdash-disko",
-        "cdash-nixpkgs": "cdash-nixpkgs",
-        "cdash-sops-nix": "cdash-sops-nix",
         "cdash-will-nix": "cdash-will-nix",
         "fish-app-src": "fish-app-src",
         "fish-disko": "fish-disko",
-        "fish-nixpkgs": "fish-nixpkgs",
-        "fish-sops-nix": "fish-sops-nix",
         "guix-disko": "guix-disko",
-        "guix-nixpkgs": "guix-nixpkgs",
-        "guix-sops-nix": "guix-sops-nix",
         "guix-will-nix": "guix-will-nix",
         "nero-b10c-nix": "nero-b10c-nix",
         "nero-disko": "nero-disko",
         "nero-dnsseedrs": "nero-dnsseedrs",
         "nero-forgejo-src": "nero-forgejo-src",
         "nero-niks3": "nero-niks3",
-        "nero-nixpkgs": "nero-nixpkgs",
-        "nero-sops-nix": "nero-sops-nix",
-        "nero-will-nix": "nero-will-nix"
+        "nero-will-nix": "nero-will-nix",
+        "nixpkgs": "nixpkgs_2",
+        "sops-nix": "sops-nix_2"
       }
     },
     "sops-nix": {
@@ -690,6 +518,26 @@
         "owner": "Mic92",
         "repo": "sops-nix",
         "rev": "c591bf665727040c6cc5cb409079acb22dcce33c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Mic92",
+        "repo": "sops-nix",
+        "type": "github"
+      }
+    },
+    "sops-nix_2": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1793052255,
+        "narHash": "sha256-Y/JIHTnMlOabDfyaSBubWGLDIVGihLEUuoMhFvQKaDo=",
+        "owner": "Mic92",
+        "repo": "sops-nix",
+        "rev": "60182817ee048ac94b4c68ea76d5ef2e8aac730d",
         "type": "github"
       },
       "original": {

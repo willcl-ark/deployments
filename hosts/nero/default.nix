@@ -1,9 +1,17 @@
 { inputs, pkgs, ... }:
+let
+  # The pinned shared module still uses the removed i2pd proto options.
+  willNix = inputs.nixpkgs.legacyPackages.x86_64-linux.applyPatches {
+    name = "will-nix-i2pd-settings";
+    src = inputs.will-nix;
+    patches = [ ./patches/i2pd-settings.patch ];
+  };
+in
 {
   imports = [
     inputs.disko.nixosModules.disko
     inputs.sops-nix.nixosModules.sops
-    inputs.will-nix.nixosModules.bitcoin-dnsseed
+    "${willNix}/modules/bitcoin-dnsseed/nixos"
     inputs.will-nix.nixosModules.bitcoin-core-guix-substitutes
     inputs.will-nix.nixosModules.stuntman
     inputs.will-nix.nixosModules.forgejo-site

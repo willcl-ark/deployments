@@ -50,7 +50,10 @@
       keyType = "ssh";
       keyPath = "/etc/ssh/ssh_host_ed25519_key";
       recipient = "age1j36kwnp6lrpzzqkk6njsyd5a7hz8zjlwppz60x5s4rqs8f5p8pwsrd6m60";
-      extraArgs = [ "--kexec-extra-flags" "--kexec-syscall" ];
+      extraArgs = [
+        "--kexec-extra-flags"
+        "--kexec-syscall"
+      ];
     };
   };
   guix-publish-2 = {

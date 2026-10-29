@@ -71,7 +71,9 @@ in
     port = 9050;
     IsolateDestAddr = true;
   };
-  services.i2pd.proto.socksProxy.address = hostAddress;
+  # The build check starts i2pd, but this veth address exists only on Nero.
+  services.i2pd.checkConfig = false;
+  services.i2pd.settings.socksproxy.address = hostAddress;
 
   # A separate namespace gives only dnsseedrs access to the WireGuard default
   # routes. The root-side veth address is also trusted by the host firewall so

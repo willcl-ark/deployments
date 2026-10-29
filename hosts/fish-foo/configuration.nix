@@ -54,10 +54,7 @@ in
 
   services.caddy = {
     enable = true;
-    package = pkgs.caddy.withPlugins {
-      plugins = [ "github.com/caddy-dns/cloudflare@v0.2.3" ];
-      hash = "sha256-bL1cpMvDogD/pdVxGA8CAMEXazWpFDBiGBxG83SmXLA=";
-    };
+    package = pkgs.callPackage ../../packages/caddy-cloudflare.nix { };
     virtualHosts = {
       ${settings.domain}.extraConfig = ''
         tls {

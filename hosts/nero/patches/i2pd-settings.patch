@@ -1,0 +1,9 @@
+diff --git a/modules/bitcoin-dnsseed/nixos/default.nix b/modules/bitcoin-dnsseed/nixos/default.nix
+--- a/modules/bitcoin-dnsseed/nixos/default.nix
++++ b/modules/bitcoin-dnsseed/nixos/default.nix
+@@ -333,4 +333,4 @@
+     services.i2pd = lib.mkIf cfg.proxies.manageLocal {
+       enable = true;
+-      proto.socksProxy.enable = true;
++      settings.socksproxy.enabled = true;
+     };
