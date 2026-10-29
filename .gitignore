@@ -1,0 +1,6 @@
+/implementation.md
+/result*
+/.direnv/
+/keys/
+__pycache__/
+*.pyc
