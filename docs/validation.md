@@ -14,7 +14,7 @@ Every host uses nixpkgs revision
 25.11, except CDash and ARM which remain 26.05.
 
 `nix flake check --no-build --all-systems --no-update-lock-file` passed.
-The Bash recipes passed ShellCheck. Command previews checked fleet membership,
+After simplifying the recipes, native just dry runs checked fleet membership,
 Nero's port, CDash's sudo access, ARM's identity and first-install arguments.
 Beelink and `all` correctly reject first installation.
 

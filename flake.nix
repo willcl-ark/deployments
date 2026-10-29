@@ -110,7 +110,6 @@
       };
     in
     {
-      deployments = hosts;
       nixosConfigurations = builtins.mapAttrs (
         name: host:
         hostInputs.${host.inputGroup}.nixpkgs.lib.nixosSystem {
@@ -130,7 +129,6 @@
         default = pkgs.mkShell {
           packages = with pkgs; [
             just
-            jq
             nixos-rebuild
             nixos-anywhere
             openssh

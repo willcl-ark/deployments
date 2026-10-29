@@ -4,115 +4,58 @@ default:
     @just --list
 
 hosts:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    nix eval --json --no-update-lock-file --no-write-lock-file .#deployments | jq -r 'to_entries[] | "\(.key): \(.value.target) port \(.value.port) (\(.value.system), switch all=\(.value.all))"'
+    nix eval --json --no-update-lock-file .#nixosConfigurations --apply builtins.attrNames
 
-plan action host:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    case "$1" in check|build|switch|deploy) ;; *) echo "Unknown action: $1" >&2; exit 1;; esac
-    DEPLOY_DRY_RUN=1 just "$1" "$2"
-
-check host:
-    @just _rebuild check "$1"
+check:
+    nix flake check --no-build --all-systems --no-update-lock-file
 
 build host:
-    @just _rebuild build "$1"
+    nix build --no-update-lock-file --no-link ".#nixosConfigurations.$1.config.system.build.toplevel"
 
 switch host:
-    @just _rebuild switch "$1"
+    @just switch-"$1"
 
-[private]
-_rebuild action host:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    action=$1
-    requested=$2
-    registry=$(nix eval --json --no-update-lock-file --no-write-lock-file .#deployments)
-    if [[ $requested == all ]]; then
-        mapfile -t names < <(jq -r --arg action "$action" 'to_entries[] | select($action != "switch" or .value.all) | .key' <<< "$registry")
-    else
-        jq -e --arg name "$requested" 'has($name)' <<< "$registry" >/dev/null || { echo "Unknown host: $requested" >&2; exit 1; }
-        names=("$requested")
-    fi
-    for name in "${names[@]}"; do
-        host=$(jq -c --arg name "$name" '.[$name]' <<< "$registry")
-        case "$action" in
-            check) command=(nix eval --raw --no-update-lock-file --no-write-lock-file ".#nixosConfigurations.$name.config.system.build.toplevel.drvPath");;
-            build) command=(nix build --no-update-lock-file --no-link ".#nixosConfigurations.$name.config.system.build.toplevel");;
-            switch)
-                target=$(jq -r '.target' <<< "$host")
-                port=$(jq -r '.port' <<< "$host")
-                identity=$(jq -r '.identity // empty' <<< "$host")
-                ssh_options=(-p "$port")
-                [[ -z $identity ]] || ssh_options+=(-i "${identity/#\~/$HOME}")
-                printf -v options '%q ' "${ssh_options[@]}"
-                command=(env "NIX_SSHOPTS=${NIX_SSHOPTS:+$NIX_SSHOPTS }${options% }" nixos-rebuild switch --flake ".#$name" --build-host "$target" --target-host "$target" --no-reexec --no-update-lock-file)
-                [[ $(jq -r '.sudo // false' <<< "$host") == false ]] || command+=(--sudo)
-                ;;
-            *) echo "Unknown action: $action" >&2; exit 1;;
-        esac
-        printf '%s: %s\n' "$name" "$action"
-        printf '%q ' "${command[@]}"; printf '\n'
-        if [[ ${DEPLOY_DRY_RUN:-0} != 1 ]]; then
-            "${command[@]}"
-            printf '\n'
-        fi
-    done
+switch-all: switch-nero switch-beelink switch-fish-foo switch-cdash-server switch-guix-publish-2
 
-deploy host *args:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    name=$1
-    shift
-    confirmed=false
-    if [[ $# == 1 && $1 == --yes ]]; then confirmed=true; shift; fi
-    [[ $# == 0 ]] || { echo 'Usage: just deploy HOST [--yes]' >&2; exit 1; }
-    [[ $name != all ]] || { echo 'First installation requires one host; deploy all is disabled.' >&2; exit 1; }
-    registry=$(nix eval --json --no-update-lock-file --no-write-lock-file .#deployments)
-    jq -e --arg name "$name" 'has($name)' <<< "$registry" >/dev/null || { echo "Unknown host: $name" >&2; exit 1; }
-    host=$(jq -c --arg name "$name" '.[$name]' <<< "$registry")
-    jq -e '.install != null' <<< "$host" >/dev/null || { echo "$name has no declarative disk layout; use switch for its existing installation." >&2; exit 1; }
-    target=$(jq -r '.install.target' <<< "$host")
-    port=$(jq -r '.install.port' <<< "$host")
-    identity=$(jq -r '.identity // empty' <<< "$host")
-    command=(nix run --no-update-lock-file .#nixos-anywhere -- --flake ".#$name" --target-host "$target" --ssh-port "$port")
-    [[ -z $identity ]] || command+=(-i "${identity/#\~/$HOME}")
-    mapfile -t extra_args < <(jq -r '.install.extraArgs // [] | .[]' <<< "$host")
-    command+=("${extra_args[@]}")
-    key_type=$(jq -r '.install.keyType // empty' <<< "$host")
-    if [[ ${DEPLOY_DRY_RUN:-0} != 1 && $confirmed == false ]]; then
-        read -r -p "First installation will erase disks on $target. Type $name to continue: " answer
-        [[ $answer == "$name" ]] || { echo 'Installation cancelled.' >&2; exit 1; }
-    fi
-    if [[ -n $key_type ]]; then
-        if [[ ${DEPLOY_DRY_RUN:-0} == 1 ]]; then
-            command+=(--extra-files '<staged-SOPS-key>')
-        else
-            : "${SOPS_KEY_FILE:?Set SOPS_KEY_FILE to the existing private SOPS identity outside the repository}"
-            key=$(realpath -e -- "$SOPS_KEY_FILE")
-            [[ -f $key && $key != "$(pwd -P)/"* ]] || { echo 'SOPS_KEY_FILE must be a file outside the repository.' >&2; exit 1; }
-            key_path=$(jq -r '.install.keyPath' <<< "$host")
-            [[ $key_path == /* && $key_path != */../* && $key_path != */.. ]] || { echo 'Invalid install.keyPath.' >&2; exit 1; }
-            umask 077
-            staging=$(mktemp -d)
-            trap 'rm -rf -- "$staging"' EXIT
-            staged="$staging$key_path"
-            mkdir -p -- "$(dirname -- "$staged")"
-            install -m 600 -- "$key" "$staged"
-            case "$key_type" in
-                age) recipient=$(age-keygen -y "$staged");;
-                ssh)
-                    ssh-keygen -y -f "$staged" > "$staged.pub"
-                    recipient=$(ssh-to-age < "$staged.pub")
-                    ;;
-                *) echo "Unsupported SOPS identity type: $key_type" >&2; exit 1;;
-            esac
-            [[ $recipient == "$(jq -r '.install.recipient' <<< "$host")" ]] || { echo "SOPS_KEY_FILE does not match $name's configured recipient." >&2; exit 1; }
-            command+=(--extra-files "$staging")
-        fi
-    fi
-    printf '%s: deploy\n' "$name"
-    printf '%q ' "${command[@]}"; printf '\n'
-    if [[ ${DEPLOY_DRY_RUN:-0} != 1 ]]; then "${command[@]}"; fi
+switch-nero:
+    NIX_SSHOPTS='-p 2222' nixos-rebuild switch --flake .#nero --build-host root@nero --target-host root@nero --no-reexec --no-update-lock-file
+
+switch-beelink:
+    nixos-rebuild switch --flake .#beelink --build-host root@beelink --target-host root@beelink --no-reexec --no-update-lock-file
+
+switch-fish-foo:
+    nixos-rebuild switch --flake .#fish-foo --build-host root@fish.foo --target-host root@fish.foo --no-reexec --no-update-lock-file
+
+switch-cdash-server:
+    NIX_SSHOPTS="-i $HOME/.ssh/hetzner-temp" nixos-rebuild switch --flake .#cdash-server --build-host will@46.225.46.115 --target-host will@46.225.46.115 --sudo --no-reexec --no-update-lock-file
+
+switch-guix-publish-2:
+    nixos-rebuild switch --flake .#guix-publish-2 --build-host root@guix-publish-2 --target-host root@guix-publish-2 --no-reexec --no-update-lock-file
+
+# This machine is normally powered off, so it is excluded from switch-all.
+switch-guix-arm-builder:
+    NIX_SSHOPTS="-i $HOME/.ssh/guix-builder-aarch64.pem" nixos-rebuild switch --flake .#guix-arm-builder --build-host root@arm-guix-builder --target-host root@arm-guix-builder --no-reexec --no-update-lock-file
+
+# First installation erases the host's disks. Prepare extra files as in README.md.
+deploy host:
+    @just deploy-"$1"
+
+[confirm('Erase the disks on Nero and install NixOS?')]
+deploy-nero:
+    nix run --no-update-lock-file .#nixos-anywhere -- --flake .#nero --target-host root@nero --ssh-port 22 --extra-files "$HOME/.config/deployments/nero"
+
+[confirm('Erase the disks on fish.foo and install NixOS?')]
+deploy-fish-foo:
+    nix run --no-update-lock-file .#nixos-anywhere -- --flake .#fish-foo --target-host root@fish.foo --ssh-port 22 --extra-files "$HOME/.config/deployments/fish-foo"
+
+[confirm('Erase the disks on CDash and install NixOS?')]
+deploy-cdash-server:
+    nix run --no-update-lock-file .#nixos-anywhere -- --flake .#cdash-server --target-host root@46.225.46.115 --ssh-port 22 -i "$HOME/.ssh/hetzner-temp" --kexec-extra-flags --kexec-syscall --extra-files "$HOME/.config/deployments/cdash-server"
+
+[confirm('Erase the disks on guix-publish-2 and install NixOS?')]
+deploy-guix-publish-2:
+    nix run --no-update-lock-file .#nixos-anywhere -- --flake .#guix-publish-2 --target-host root@guix-publish-2 --ssh-port 22 --extra-files "$HOME/.config/deployments/guix-publish-2"
+
+[confirm('Erase the disks on the ARM Guix builder and install NixOS?')]
+deploy-guix-arm-builder:
+    nix run --no-update-lock-file .#nixos-anywhere -- --flake .#guix-arm-builder --target-host root@arm-guix-builder --ssh-port 22 -i "$HOME/.ssh/guix-builder-aarch64.pem"

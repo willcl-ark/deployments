@@ -3,14 +3,13 @@
 This flake is the deployment entry point for Nero, Beelink, fish.foo, CDash,
 Guix publish and the on-demand ARM Guix builder. Server configurations share a
 pinned `nixos-unstable` and SOPS-Nix. Other service modules retain their existing
-independent pins. Deployment commands are direct just recipes using Nix, Bash
-and jq.
+independent pins. Deployment commands are explicit per-host just recipes.
 
 ```sh
 nix develop
 just hosts
-just plan switch all
-just check all
+just --dry-run switch-all
+just check
 just build nero
 just switch nero
 just switch beelink
@@ -21,22 +20,25 @@ just switch all
 `nixos-rebuild`. CDash uses `will` with sudo; the other machines use root.
 It does not synchronize or overwrite `/etc/nixos`. Run future deployments here.
 SSH aliases and identities come from your SSH configuration, with Nero's port
-2222 and the ARM and CDash identity paths recorded in `hosts.nix`.
+2222 and the ARM and CDash identity paths set in their just recipes.
 
 `switch all` updates the five always-on hosts sequentially and stops on the
 first error. It does not roll back hosts already updated. The ARM builder is
 normally powered off; update it explicitly with `just switch guix-arm-builder`
-when it is running. `check all` and `build all` include ARM. Local ARM builds
+when it is running. `check` includes ARM. Local ARM builds
 need an aarch64 builder or emulation.
 
-`plan` prints the commands without connecting. `check` evaluates complete
-system derivations without building. `build` builds locally without activation.
+`just --dry-run switch-nero` prints the command without connecting. Use the
+per-host recipe name for previews; `just --dry-run switch nero` only prints the
+call to that recipe. `check` checks the flake and evaluates system derivations
+without building them. `build HOST` builds locally without activation.
 Commands require a current lock file and do not update pins automatically.
 
 ## Layout
 
 - `flake.nix`, `flake.lock`: host construction and pinned dependencies.
-- `hosts.nix`: deployment targets, SSH settings and installation metadata.
+- `hosts.nix`: host architectures and service input groups.
+- `justfile`: deployment targets, SSH settings and commands.
 - `hosts/<name>/`: hardware, networking and service configuration.
 - `packages/`: shared package definitions, currently Caddy with Cloudflare DNS.
 - `modules/common.nix`: shared defaults, overridable by host definitions.
@@ -63,25 +65,42 @@ Other reusable services come from pinned module repositories.
 
 `deploy` uses nixos-anywhere and erases the disks declared by the host's Disko
 configuration. It targets the same hardware described in the host directory.
-Check disk identifiers and the installation SSH target in `hosts.nix` before
+Check disk identifiers and the installation SSH target in `justfile` before
 using it. Rescue SSH is usually port 22, including Nero.
 
 ```sh
-just plan deploy nero
-SOPS_KEY_FILE="$HOME/.config/deployments/keys/nero.txt" just deploy nero
+just --yes --dry-run deploy-nero
+just deploy nero
 ```
 
-The command asks you to type the host name before proceeding. For unattended
-use, `just deploy nero --yes` supplies that confirmation. `deploy all` is
-unsupported. Beelink has no Disko layout, so its first installation is not yet
-implemented; `switch beelink` works with the existing installation.
+The per-host recipe uses just's built-in confirmation before installation.
+There is no `deploy-all` recipe. Beelink has no Disko layout, so its first
+installation is not yet implemented; `switch beelink` works with the existing
+installation.
 
-For Nero, fish-foo and guix-publish-2, `SOPS_KEY_FILE` must point to the existing
-age identity matching that host's recipient. For CDash it must point to the
-existing SSH Ed25519 host private key whose public key is a SOPS recipient.
-The ARM builder needs no SOPS identity. The recipe checks the public recipient,
-stages the key with restrictive permissions, passes it through `--extra-files`,
-and deletes the staging directory afterwards. No new identities are generated.
+Before installing, prepare `$HOME/.config/deployments/HOST/` as a directory
+tree matching the destination filesystem. nixos-anywhere copies it with
+`--extra-files`. Place the host's existing private identity at:
+
+| Host | Path inside that directory |
+| --- | --- |
+| nero | `var/lib/sops-nix/key.txt` |
+| fish-foo | `root/.config/sops/age/keys.txt` |
+| cdash-server | `etc/ssh/ssh_host_ed25519_key` |
+| guix-publish-2 | `var/lib/sops-nix/key.txt` |
+
+For example, prepare Nero's files once using its existing age identity:
+
+```sh
+umask 077
+install -Dm600 /path/to/existing/nero.txt \
+  "$HOME/.config/deployments/nero/var/lib/sops-nix/key.txt"
+```
+
+Use identities that match the recipients in `.sops.yaml`. CDash needs its
+existing SSH host private key, not your login key. Include its public companion
+at `etc/ssh/ssh_host_ed25519_key.pub`. The ARM builder needs no extra files.
+These directories persist for reuse; the recipes do not generate or check keys.
 
 Keep private keys outside this Git repository. Existing Nero and Guix private
 identities remain in their old repositories' ignored `keys/` directories until
@@ -112,7 +131,7 @@ rules continue to control which identities can decrypt each file.
 
 ```sh
 nix flake update nixpkgs
-just check all
+just check
 just build nero
 just switch nero
 ```
@@ -122,7 +141,7 @@ The group prefixes preserve old service revisions; they do not imply different
 server nixpkgs versions. Review `flake.lock` before switching. Build and inspect
 one host at a time for the first unstable rollout.
 
-Use `just plan switch all` to inspect routing, `just check all` for evaluation,
+Use `just --dry-run switch-all` to inspect routing, `just check` for evaluation,
 and `just build HOST` to verify builds without activation.
 [Migration notes](docs/migration.md) record the source inventory and comparison
 checks. `implementation.md` records local design decisions and is not committed.
