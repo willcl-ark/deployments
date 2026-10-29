@@ -141,7 +141,7 @@
       devShells = builtins.mapAttrs (_: pkgs: {
         default = pkgs.mkShell {
           packages = with pkgs; [
-            just python3 nixos-rebuild nixos-anywhere openssh age sops ssh-to-age
+            just jq nixos-rebuild nixos-anywhere openssh age sops ssh-to-age
           ];
         };
       }) toolPackages;
