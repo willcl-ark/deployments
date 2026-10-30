@@ -44,14 +44,6 @@ in
     interface = "enp6s0";
   };
 
-  # Public sites use Caddy; tailnet HTTPS belongs to the GitHub CI API proxy.
-  # Avoid a wildcard listener so either service can start first after reboot.
-  services.caddy.globalConfig = ''
-    default_bind 157.180.56.194 [2a01:4f9:3100:441f::1] 127.0.0.1 [::1]
-  '';
-  # Automatic HTTP redirects only inherit default_bind from an explicit HTTP site.
-  services.caddy.virtualHosts."http://".extraConfig = "";
-
   services.journald.settings.Journal = {
     SystemMaxUse = "12G";
     MaxRetentionSec = "30day";

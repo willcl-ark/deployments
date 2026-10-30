@@ -18,7 +18,7 @@ in
   };
 
   # GitHub CI reaches CLIProxyAPI here; Ralph connects directly over loopback.
-  # Caddy binds the public and loopback addresses, leaving tailnet port 443 free.
+  # Use a separate port so Caddy can keep its default wildcard HTTPS listener.
   systemd.services.tailscale-serve-cliproxy = {
     description = "Serve CLIProxyAPI privately over Tailscale HTTPS";
     wantedBy = [ "multi-user.target" ];
@@ -32,8 +32,8 @@ in
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStart = "${tailscale} serve --bg --yes --https=443 http://127.0.0.1:8317";
-      ExecStop = "${tailscale} serve --yes --https=443 off";
+      ExecStart = "${tailscale} serve --bg --yes --https=8443 http://127.0.0.1:8317";
+      ExecStop = "${tailscale} serve --yes --https=8443 off";
     };
   };
 }
