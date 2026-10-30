@@ -36,4 +36,22 @@ in
       ExecStop = "${tailscale} serve --yes --https=8443 off";
     };
   };
+
+  systemd.services.tailscale-serve-netdata = {
+    description = "Serve Netdata privately over Tailscale HTTPS";
+    wantedBy = [ "multi-user.target" ];
+    after = [
+      "tailscaled.service"
+      "tailscaled-autoconnect.service"
+      "netdata.service"
+    ];
+    requires = [ "tailscaled-autoconnect.service" ];
+    wants = [ "netdata.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = "${tailscale} serve --bg --yes --https=10000 http://127.0.0.1:19999";
+      ExecStop = "${tailscale} serve --yes --https=10000 off";
+    };
+  };
 }

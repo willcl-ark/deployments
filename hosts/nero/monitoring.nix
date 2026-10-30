@@ -1,4 +1,9 @@
-{ config, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 {
   sops.secrets.nero-bot-token = { };
   sops.templates."netdata-telegram" = {
@@ -12,8 +17,11 @@
     '';
   };
 
+  nixpkgs.config.allowUnfreePredicate = pkg: lib.getName pkg == "netdata";
+
   services.netdata = {
     enable = true;
+    package = pkgs.netdata.override { withCloudUi = true; };
     enableAnalyticsReporting = false;
     config = {
       web."bind to" = "127.0.0.1";
