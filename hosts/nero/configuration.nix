@@ -353,6 +353,7 @@ in
       }
     }
 
+    redir / /traces/
     redir /stats /stats/
     handle_path /stats/* {
       root * ${config.services.ralph.reportDir}/stats
@@ -394,6 +395,11 @@ in
     handle {
       respond 404
     }
+  '';
+
+  services.caddy.virtualHosts."ralph.fish.foo".extraConfig = ''
+    redir / https://review.fish.foo/traces/
+    respond 404
   '';
 
   services.ralph = {
