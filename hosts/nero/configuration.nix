@@ -11,10 +11,15 @@ let
   # Ralph talks directly to Forgejo, bypassing Caddy and Anubis.
   forgejoLocalUrl = "http://${config.services.forgejoSite.http.address}:${toString config.services.forgejoSite.http.port}";
   ralphLanding = ''
+    @ralphTheme path /theme.css /theme.js
+    handle @ralphTheme {
+      root * ${config.services.ralph.package}/libexec/ralph-service/ralph_service
+      file_server
+    }
     handle / {
       root * ${pkgs.writeTextDir "index.html" (builtins.readFile ./ralph-landing.html)}
       header {
-        Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'"
+        Content-Security-Policy "default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self'"
         X-Content-Type-Options nosniff
       }
       file_server
@@ -382,7 +387,7 @@ in
       @history path_regexp ralph_history ^/(?:[0-9]+/(?:index[.]html)?|index[.]html)?$
       header @history Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; script-src 'self'; connect-src 'self'"
       @report not path_regexp ^/(?:[0-9]+/(?:index[.]html)?|index[.]html)?$
-      header @report Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'"
+      header @report Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; script-src 'self'"
       file_server
     }
 
