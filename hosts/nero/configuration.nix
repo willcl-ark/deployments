@@ -10,21 +10,6 @@ let
   guixPublish2KnownHost = lib.removeSuffix "\n" (builtins.readFile ./guix-publish-2-known-host);
   # Ralph talks directly to Forgejo, bypassing Caddy and Anubis.
   forgejoLocalUrl = "http://${config.services.forgejoSite.http.address}:${toString config.services.forgejoSite.http.port}";
-  ralphLanding = ''
-    @ralphTheme path /theme.css /theme.js
-    handle @ralphTheme {
-      root * ${config.services.ralph.package}/libexec/ralph-service/ralph_service
-      file_server
-    }
-    handle / {
-      root * ${pkgs.writeTextDir "index.html" (builtins.readFile ./ralph-landing.html)}
-      header {
-        Content-Security-Policy "default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self'"
-        X-Content-Type-Options nosniff
-      }
-      file_server
-    }
-  '';
 in
 {
   imports = [
@@ -368,7 +353,7 @@ in
       }
     }
 
-    ${ralphLanding}
+    redir / /stats/reviews/
     redir /stats /stats/
     handle_path /stats/* {
       root * ${config.services.ralph.reportDir}/stats
@@ -413,7 +398,7 @@ in
   '';
 
   services.caddy.virtualHosts."ralph.fish.foo".extraConfig = ''
-    ${ralphLanding}
+    redir / https://review.fish.foo/stats/reviews/
     handle {
       respond 404
     }
