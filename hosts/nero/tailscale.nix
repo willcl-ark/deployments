@@ -17,6 +17,8 @@ in
     requires = [ "sops-install-secrets.service" ];
   };
 
+  # GitHub CI reaches CLIProxyAPI here; Ralph connects directly over loopback.
+  # Caddy binds the public and loopback addresses, leaving tailnet port 443 free.
   systemd.services.tailscale-serve-cliproxy = {
     description = "Serve CLIProxyAPI privately over Tailscale HTTPS";
     wantedBy = [ "multi-user.target" ];
