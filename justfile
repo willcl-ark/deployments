@@ -10,6 +10,7 @@ mod guix-arm-builder 'hosts/guix-arm-builder/justfile'
 mod fish-foo 'hosts/fish-foo/justfile'
 
 # List commands.
+[private]
 default:
     @just --list
 
