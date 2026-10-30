@@ -364,12 +364,14 @@ in
       file_server
     }
 
+    redir /traces /traces/
     handle_path /traces/* {
       root * ${config.services.ralph.reportDir}
-      header {
-        Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'"
-        X-Content-Type-Options nosniff
-      }
+      header X-Content-Type-Options nosniff
+      @history path_regexp ralph_history ^/(?:[0-9]+/(?:index[.]html)?|index[.]html)?$
+      header @history Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; script-src 'self'; connect-src 'self'"
+      @report not path_regexp ^/(?:[0-9]+/(?:index[.]html)?|index[.]html)?$
+      header @report Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'"
       file_server
     }
 
