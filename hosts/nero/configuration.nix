@@ -51,8 +51,8 @@ in
 
   services.bitcoinDnsSeed.mainnet = {
     enable = true;
-    threads = 200;
-    crawlRate = 40;
+    threads = 150;
+    crawlRate = 30;
   };
   services.bitcoinDnsSeed.signet = {
     enable = true;
