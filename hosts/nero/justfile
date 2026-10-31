@@ -16,6 +16,9 @@ ssh:
 logs network="mainnet":
     ssh -p {{ ssh_port }} {{ target }} {{ quote("systemctl status dnsseedrs-" + quote(network) + " && journalctl -f -u dnsseedrs-" + quote(network)) }}
 
+logs-ralph:
+    ssh -p {{ ssh_port }} {{ target }} 'systemctl status ralph && journalctl -f -u ralph -n 10'
+
 # Count DNS seed nodes.
 db-stats network="mainnet":
     ssh -p {{ ssh_port }} {{ target }} {{ quote("nix shell --quiet nixpkgs#sqlite -c sqlite3 " + quote("/var/lib/dnsseedrs/" + network + "/sqlite.db") + " 'SELECT COUNT(*) FROM nodes;'") }}
