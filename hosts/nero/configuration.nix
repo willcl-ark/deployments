@@ -82,13 +82,13 @@ in
   sops.secrets.github-metadata-backup-github-token = {
     owner = "gmb-bitcoin";
     group = "github-metadata";
-    mode = "0400";
+    mode = "0440";
   };
 
   sops.secrets.github-metadata-backup-forgejo-token = {
     owner = "gmb-bitcoin";
     group = "github-metadata";
-    mode = "0400";
+    mode = "0440";
   };
 
   sops.secrets.forgejo-review-bot-webhook-secret = {
@@ -291,6 +291,8 @@ in
   services.forgejo.settings."git.config" = {
     "\"url.${forgejoLocalUrl}/willcl-ark/github-metadata-backup-bitcoin-bitcoin.git.insteadOf\"" =
       "https://git.fish.foo/willcl-ark/github-metadata-backup-bitcoin-bitcoin.git";
+    "\"url.${forgejoLocalUrl}/willcl-ark/github-metadata-backup-bitcoin-core-gui-qml.git.insteadOf\"" =
+      "https://git.fish.foo/willcl-ark/github-metadata-backup-bitcoin-core-gui-qml.git";
   };
   services.forgejo.settings.mirror.MIN_INTERVAL = "2m";
   services.forgejo.settings."cron.update_mirrors".SCHEDULE = "@every 1m";
@@ -332,6 +334,23 @@ in
       {
         name = "forgejo";
         remote = "${forgejoLocalUrl}/willcl-ark/github-metadata-backup-bitcoin-bitcoin.git";
+        user = "willcl-ark";
+        tokenFile = config.sops.secrets.github-metadata-backup-forgejo-token.path;
+      }
+    ];
+  };
+
+  services.github-metadata-backup.gui-qml = {
+    enable = true;
+    owner = "bitcoin-core";
+    repository = "gui-qml";
+    personalAccessTokenFile = config.sops.secrets.github-metadata-backup-github-token.path;
+    timerOnCalendar = "*-*-* *:00/2:00 UTC";
+
+    pushToRemotes = [
+      {
+        name = "forgejo";
+        remote = "${forgejoLocalUrl}/willcl-ark/github-metadata-backup-bitcoin-core-gui-qml.git";
         user = "willcl-ark";
         tokenFile = config.sops.secrets.github-metadata-backup-forgejo-token.path;
       }
@@ -467,6 +486,33 @@ in
   };
 
   systemd.services.github-metadata-backup-git-pusher-bitcoin = {
+    after = [ "sops-install-secrets.service" ];
+    wants = [ "sops-install-secrets.service" ];
+  };
+
+  systemd.timers.github-metadata-backup-gui-qml.timerConfig.Persistent = true;
+
+  systemd.services.github-metadata-backup-gui-qml = {
+    after = [ "sops-install-secrets.service" ];
+    wants = [ "sops-install-secrets.service" ];
+    script = lib.mkForce ''
+      ${config.services.github-metadata-backup.gui-qml.package}/bin/github-metadata-backup \
+        --owner=bitcoin-core \
+        --repo=gui-qml \
+        --destination=/var/lib/github-metadata-backup/gui-qml/ \
+        --personal-access-token-file=${config.sops.secrets.github-metadata-backup-github-token.path}
+
+      ${pkgs.git}/bin/git -C /var/lib/github-metadata-backup/gui-qml/ init
+      ${pkgs.git}/bin/git -C /var/lib/github-metadata-backup/gui-qml/ add state.json issues pulls
+      if ! ${pkgs.git}/bin/git -C /var/lib/github-metadata-backup/gui-qml/ diff --cached --quiet; then
+        ${pkgs.git}/bin/git -C /var/lib/github-metadata-backup/gui-qml/ config user.name "bitcoin-core:gui-qml"
+        ${pkgs.git}/bin/git -C /var/lib/github-metadata-backup/gui-qml/ config user.email "bitcoin-core-gui-qml@github-metadata-backup"
+        ${pkgs.git}/bin/git -C /var/lib/github-metadata-backup/gui-qml/ commit -m "bitcoin-core:gui-qml GitHub backup from $(date)"
+      fi
+    '';
+  };
+
+  systemd.services.github-metadata-backup-git-pusher-gui-qml = {
     after = [ "sops-install-secrets.service" ];
     wants = [ "sops-install-secrets.service" ];
   };
