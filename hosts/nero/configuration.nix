@@ -308,7 +308,7 @@ in
     respond @sourceArchives 404
   '';
 
-  services.forgejo.dump.age = "7d";
+  services.forgejo.dump.age = "3d";
   services.forgejo.settings."cron.archive_cleanup" = {
     SCHEDULE = "@every 1h";
     OLDER_THAN = "1h";
