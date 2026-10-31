@@ -286,7 +286,7 @@ in
   };
 
   services.forgejo.settings.migrations.ALLOWED_DOMAINS = lib.mkForce
-    "github.com,*.github.com,github-production-user-asset-*.s3.amazonaws.com,cygwin.com,sourceware.org,gitlab.com,*.gitlab.com";
+    "github.com,*.github.com,git.fish.foo,github-production-user-asset-*.s3.amazonaws.com,cygwin.com,sourceware.org,gitlab.com,*.gitlab.com";
   services.forgejo.settings.migrations.ALLOW_LOCALNETWORKS = lib.mkForce true;
   services.forgejo.settings."git.config" = {
     "\"url.${forgejoLocalUrl}/willcl-ark/github-metadata-backup-bitcoin-bitcoin.git.insteadOf\"" =
