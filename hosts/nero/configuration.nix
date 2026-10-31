@@ -358,7 +358,7 @@ in
     handle_path /stats/* {
       root * ${config.services.ralph.reportDir}/stats
       header {
-        Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; script-src 'self'"
+        Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; script-src 'self'; connect-src 'self'"
         X-Content-Type-Options nosniff
         Cache-Control "no-cache"
       }
@@ -431,6 +431,11 @@ in
   systemd.services.ralph-telegram = {
     after = [ "sops-install-secrets.service" ];
     wants = [ "sops-install-secrets.service" ];
+  };
+
+  systemd.timers.ralph-stats.timerConfig = {
+    OnUnitActiveSec = lib.mkForce "1m";
+    AccuracySec = "1s";
   };
 
   systemd.services.ralph = {
