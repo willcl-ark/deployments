@@ -20,6 +20,7 @@ in
     ./hardware-configuration.nix
     ./dnsseedrs-wireguard.nix
     ./monitoring.nix
+    ./ralph-backup.nix
     ./ralph-proxy.nix
     ./tailscale.nix
   ];
