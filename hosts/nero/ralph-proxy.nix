@@ -56,7 +56,7 @@ in
     '';
   };
 
-  services.ralph.instances.core = {
+  services.ralph = {
     openaiApiBase = "http://127.0.0.1:8317/v1";
     openaiKeyFile = config.sops.secrets.cli-proxy-api-key.path;
     subscriptionUsage = {

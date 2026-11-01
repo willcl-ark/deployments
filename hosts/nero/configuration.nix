@@ -377,7 +377,7 @@ in
     redir / /stats/reviews/
     redir /stats /stats/
     handle_path /stats/* {
-      root * ${config.services.ralph.instances.core.reportDir}/stats
+      root * ${config.services.ralph.reportDir}/stats
       header {
         Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; script-src 'self'; connect-src 'self'"
         X-Content-Type-Options nosniff
@@ -388,11 +388,11 @@ in
 
     redir /traces /traces/
     handle_path /traces/* {
-      root * ${config.services.ralph.instances.core.reportDir}
+      root * ${config.services.ralph.reportDir}
       header X-Content-Type-Options nosniff
-      @history path_regexp ralph_history ^/(?:[0-9]+/(?:index[.]html)?|index[.]html)?$
+      @history path_regexp ralph_history ^/(?:(?:[a-z][a-z0-9_-]*/)?[0-9]+/(?:index[.]html)?|index[.]html)?$
       header @history Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; script-src 'self'; connect-src 'self'"
-      @report not path_regexp ^/(?:[0-9]+/(?:index[.]html)?|index[.]html)?$
+      @report not path_regexp ^/(?:(?:[a-z][a-z0-9_-]*/)?[0-9]+/(?:index[.]html)?|index[.]html)?$
       header @report Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; script-src 'self'"
       file_server
     }
@@ -425,29 +425,32 @@ in
     }
   '';
 
-  services.ralph.instances.core = {
+  services.ralph = {
     enable = true;
-    serviceName = "ralph";
-    origin = "${forgejoLocalUrl}/bitcoin/bitcoin.git";
-    repository = "bitcoin/bitcoin";
-    forgejoApi = "${forgejoLocalUrl}/api/v1/repos/bitcoin/bitcoin";
-    repositoryUrl = "https://git.fish.foo/bitcoin/bitcoin";
-    webhookSecretFile = config.sops.secrets.forgejo-review-bot-webhook-secret.path;
-    forgejoTokenFile = config.sops.secrets.forgejo-review-bot-token.path;
+    workers = 3;
+    # Preserve Core history and include every repository in the existing backup.
+    stateDir = "/var/lib/forgejo-review-bot";
+    reportDir = "/var/lib/forgejo-review-reports";
+    reportBaseUrl = "https://review.fish.foo/traces";
     telegram = {
       enable = true;
       botTokenFile = config.sops.secrets.ralph-telegram-token.path;
       chatId = "-1004496254448";
     };
-    githubPostMajorFindings = false;
-    githubTokenFile = config.sops.secrets.ralph-github-api-key.path;
-    githubRepository = "bitcoin/bitcoin";
-    botLogin = "ralph";
-    # Keep the existing queue and editable review comments.
-    stateDir = "/var/lib/forgejo-review-bot";
-    commentMarker = "<!-- forgejo-review-bot:bitcoin/bitcoin -->";
-    reportDir = "/var/lib/forgejo-review-reports";
-    reportBaseUrl = "https://review.fish.foo/traces";
+    repositories.core = {
+      origin = "${forgejoLocalUrl}/bitcoin/bitcoin.git";
+      repository = "bitcoin/bitcoin";
+      forgejoApi = "${forgejoLocalUrl}/api/v1/repos/bitcoin/bitcoin";
+      repositoryUrl = "https://git.fish.foo/bitcoin/bitcoin";
+      webhookSecretFile = config.sops.secrets.forgejo-review-bot-webhook-secret.path;
+      forgejoTokenFile = config.sops.secrets.forgejo-review-bot-token.path;
+      githubPostMajorFindings = false;
+      githubTokenFile = config.sops.secrets.ralph-github-api-key.path;
+      githubRepository = "bitcoin/bitcoin";
+      botLogin = "ralph";
+      commentMarker = "<!-- forgejo-review-bot:bitcoin/bitcoin -->";
+      workers = 3;
+    };
   };
 
   systemd.services.ralph-telegram = {

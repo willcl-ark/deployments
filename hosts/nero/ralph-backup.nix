@@ -5,8 +5,8 @@
   ...
 }:
 let
-  stateDir = config.services.ralph.instances.core.stateDir;
-  reportDir = config.services.ralph.instances.core.reportDir;
+  stateDir = config.services.ralph.stateDir;
+  reportDir = config.services.ralph.reportDir;
   snapshotDir = "/var/lib/ralph-backup/sqlite";
   sourceDirs = [
     stateDir
