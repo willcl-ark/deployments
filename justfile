@@ -37,7 +37,31 @@ switch-all: switch-nero switch-beelink switch-fish-foo switch-cdash-server switc
 # Update Nero.
 [private]
 switch-nero:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    mkdir -p "${XDG_CACHE_HOME:-$HOME/.cache}/deployments"
+    exec 9>"${XDG_CACHE_HOME:-$HOME/.cache}/deployments/nero.lock"
+    echo 'Waiting for the Nero deployment lock...'
+    flock 9
+    just nero-wait-for-activation
     NIX_SSHOPTS='-p 2222' nixos-rebuild switch --flake .#nero --build-host root@nero --target-host root@nero --no-reexec --no-update-lock-file
+
+# An activation can outlive its SSH connection or predate the local lock.
+[private]
+nero-wait-for-activation:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo 'Waiting for any existing Nero activation...'
+    ssh -p 2222 root@nero '
+        while true; do
+            state=$(systemctl show nixos-rebuild-switch-to-configuration.service --property=ActiveState --value) || exit
+            case "$state" in
+                active|activating|reloading|deactivating) sleep 5 ;;
+                inactive|failed) break ;;
+                *) echo "Unexpected activation state: $state" >&2; exit 1 ;;
+            esac
+        done
+    '
 
 # Update Beelink.
 [private]
@@ -75,6 +99,13 @@ switch-remote-all: switch-remote-nero switch-remote-beelink switch-remote-cdash-
 # Sync and switch Nero remotely.
 [private]
 switch-remote-nero:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    mkdir -p "${XDG_CACHE_HOME:-$HOME/.cache}/deployments"
+    exec 9>"${XDG_CACHE_HOME:-$HOME/.cache}/deployments/nero.lock"
+    echo 'Waiting for the Nero deployment lock...'
+    flock 9
+    just nero-wait-for-activation
     rsync -az --delete --mkpath --exclude='.git' --filter=':- .gitignore' -e 'ssh -p 2222' ./ root@nero:/var/lib/nixos-deployments/
     ssh -p 2222 root@nero 'nixos-rebuild switch --flake path:/var/lib/nixos-deployments#nero --no-update-lock-file'
 

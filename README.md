@@ -48,6 +48,16 @@ call to that recipe. `check` checks the flake and evaluates system derivations
 without building them. `build HOST` builds locally without activation.
 Commands require a current lock file and do not update pins automatically.
 
+Both Nero switch recipes acquire the same local lock before syncing or building.
+Repeated invocations from this user on this workstation wait for the preceding
+one, including across repository checkouts. They also wait for a remote activation
+that survived an interrupted SSH connection or started before locking was added.
+The lock is held through activation, including Ralph's review drain. Waiting
+commands use the working tree as it exists when they acquire the lock.
+Deployments from other workstations or direct nixos-rebuild commands are not
+covered; coordinate those separately.
+
+
 ## Layout
 
 - `flake.nix`, `flake.lock`: host construction and pinned dependencies.

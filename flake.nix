@@ -130,6 +130,7 @@
           packages = with pkgs; [
             just
             rsync
+            util-linux # flock serializes Nero deployments from this workstation.
             nixos-rebuild
             nixos-anywhere
             openssh
