@@ -460,7 +460,7 @@ in
       repositoryUrl = "https://git.fish.foo/bitcoin/bitcoin";
       webhookSecretFile = config.sops.secrets.forgejo-review-bot-webhook-secret.path;
       forgejoTokenFile = config.sops.secrets.forgejo-review-bot-token.path;
-      githubPostMajorFindings = false;
+      githubPublication = "off";
       githubTokenFile = config.sops.secrets.ralph-github-api-key.path;
       githubRepository = "bitcoin/bitcoin";
       botLogin = "ralph";

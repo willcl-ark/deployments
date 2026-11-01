@@ -24,7 +24,7 @@ in
     forgejoTokenFile = config.sops.secrets.forgejo-review-bot-token.path;
     githubRepository = "bitcoin-core/gui-qml";
     githubTokenFile = config.sops.secrets.ralph-github-api-key.path;
-    githubPostMajorFindings = true;
+    githubPublication = "full";
     botLogin = "ralph";
     submodules.bitcoin = "https://github.com/bitcoin/bitcoin";
     writeVerifierEnvironment =
