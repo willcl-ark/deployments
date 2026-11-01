@@ -18,7 +18,7 @@ just switch-remote nero
 ```
 
 `switch` evaluates locally, builds on the target, and activates there with
-`nixos-rebuild`. CDash uses `will` with sudo; the other machines use root.
+`nixos-rebuild`. CDash uses `satoshi` with sudo; the other machines use root.
 It does not synchronize or overwrite `/etc/nixos`. Run future deployments here.
 SSH aliases and identities come from your SSH configuration, with Nero's port
 2222 and the ARM and CDash identity paths set in their just recipes.
