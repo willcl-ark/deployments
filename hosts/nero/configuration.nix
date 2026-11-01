@@ -34,6 +34,16 @@ in
 
   system.stateVersion = "25.11";
 
+  environment.systemPackages = with pkgs; [
+    file
+    ripgrep
+    neovim
+    jq
+    sqlite
+    lsof
+    ncdu
+  ];
+
   networking.hostName = "nero";
   networking.useDHCP = true;
   networking.interfaces.enp6s0.ipv6.addresses = [
