@@ -22,6 +22,7 @@ in
     ./monitoring.nix
     ./ralph-backup.nix
     ./ralph-proxy.nix
+    ./ralph-gui-qml.nix
     ./tailscale.nix
   ];
 
