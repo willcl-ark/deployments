@@ -1,0 +1,127 @@
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -167,13 +167,12 @@
+     owner: String,
+     repo: String,
+     attempt: u8,
+-) -> octocrab::Result<Page<octocrab::models::timelines::TimelineEvent>> {
++) -> octocrab::Result<Page<serde_json::Value>> {
+     match octocrab::instance()
+-        .issues(owner.clone(), repo.clone())
+-        .list_timeline_events(number)
+-        .per_page(MAX_PER_PAGE)
+-        .page(page)
+-        .send()
++        .get(
++            format!("/repos/{owner}/{repo}/issues/{number}/timeline"),
++            Some(&serde_json::json!({"per_page": MAX_PER_PAGE, "page": page})),
++        )
+         .await
+     {
+         Ok(p) => Ok(p),
+@@ -197,8 +196,8 @@
+     number: u64,
+     owner: String,
+     repo: String,
+-) -> Result<Vec<models::timelines::TimelineEvent>, octocrab::Error> {
+-    let mut events = Vec::<models::timelines::TimelineEvent>::new();
++) -> Result<Vec<serde_json::Value>, octocrab::Error> {
++    let mut events = Vec::<serde_json::Value>::new();
+ 
+     for page in 1..u32::MAX {
+         match get_timeline_page(number, page, owner.clone(), repo.clone(), 0).await {
+@@ -776,3 +775,53 @@
+         }
+     }
+ }
++
++#[cfg(test)]
++mod timeline_tests {
++    use super::*;
++    use std::io::{Read, Write};
++    use std::net::TcpListener;
++
++    #[tokio::test]
++    async fn preserves_unknown_timeline_events() {
++        let event = serde_json::json!({
++            "id": 123, "event": "blocked_by_added",
++            "created_at": "2026-10-31T00:00:00Z",
++            "actor": {"login": "example", "id": 1},
++            "dependency": {"number": 753, "future_field": true}
++        });
++        let body = serde_json::to_string(&vec![event.clone()]).unwrap();
++        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
++        let address = listener.local_addr().unwrap();
++        let server = std::thread::spawn(move || {
++            let (mut stream, _) = listener.accept().unwrap();
++            let mut request = Vec::new();
++            let mut byte = [0];
++            while !request.ends_with(b"\r\n\r\n") {
++                stream.read_exact(&mut byte).unwrap();
++                request.push(byte[0]);
++            }
++            let request = String::from_utf8(request).unwrap();
++            assert!(request.starts_with("GET /repos/bitcoin-core/gui-qml/issues/753/timeline?"));
++            assert!(request.contains("page=2"));
++            assert!(request.contains("per_page=100"));
++            write!(stream, "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}", body.len(), body).unwrap();
++        });
++        octocrab::initialise(
++            octocrab::OctocrabBuilder::default()
++                .base_uri(format!("http://{address}"))
++                .unwrap()
++                .build()
++                .unwrap(),
++        );
++        let page = get_timeline_page(753, 2, "bitcoin-core".into(), "gui-qml".into(), 0)
++            .await
++            .unwrap();
++        assert_eq!(
++            serde_json::to_value(&page.items).unwrap(),
++            serde_json::json!([event])
++        );
++        assert!(page.next.is_none());
++        server.join().unwrap();
++    }
++}
+--- a/src/types.rs
++++ b/src/types.rs
+@@ -1,6 +1,6 @@
+ use chrono::{DateTime, Utc};
+ use clap::Parser;
+-use octocrab::models::{issues, pulls, timelines};
++use octocrab::models::{issues, pulls};
+ use serde::{Deserialize, Serialize};
+ use std::borrow::Cow;
+ use std::error;
+@@ -77,11 +77,11 @@
+ pub struct IssueWithMetadata {
+     pub r#type: String,
+     pub issue: issues::Issue,
+-    pub events: Vec<timelines::TimelineEvent>,
++    pub events: Vec<serde_json::Value>,
+ }
+ 
+ impl IssueWithMetadata {
+-    pub fn new(issue: issues::Issue, events: Vec<timelines::TimelineEvent>) -> Self {
++    pub fn new(issue: issues::Issue, events: Vec<serde_json::Value>) -> Self {
+         Self {
+             r#type: "issue".to_string(),
+             issue,
+@@ -95,14 +95,14 @@
+ pub struct PullWithMetadata {
+     pub r#type: String,
+     pub pull: pulls::PullRequest,
+-    pub events: Vec<timelines::TimelineEvent>,
++    pub events: Vec<serde_json::Value>,
+     pub comments: Vec<pulls::Comment>,
+ }
+ 
+ impl PullWithMetadata {
+     pub fn new(
+         pull: pulls::PullRequest,
+-        events: Vec<timelines::TimelineEvent>,
++        events: Vec<serde_json::Value>,
+         comments: Vec<pulls::Comment>,
+     ) -> Self {
+         Self {

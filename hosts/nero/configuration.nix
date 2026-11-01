@@ -23,6 +23,7 @@ in
     ./ralph-backup.nix
     ./ralph-proxy.nix
     ./ralph-gui-qml.nix
+    ./github-metadata-events.nix
     ./tailscale.nix
   ];
 
