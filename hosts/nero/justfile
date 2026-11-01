@@ -16,8 +16,13 @@ ssh:
 logs network="mainnet":
     ssh -p {{ ssh_port }} {{ target }} {{ quote("systemctl status dnsseedrs-" + quote(network) + " && journalctl -f -u dnsseedrs-" + quote(network)) }}
 
+# Follow normal Ralph logs, excluding verbose review progress.
 logs-ralph:
-    ssh -p {{ ssh_port }} {{ target }} 'systemctl status ralph && journalctl -f -u ralph -n 10'
+    ssh -p {{ ssh_port }} {{ target }} 'journalctl -f -u ralph -p info -n 30'
+
+# Follow Ralph logs including routing, stages, escalations, and retries.
+logs-ralph-debug:
+    ssh -p {{ ssh_port }} {{ target }} 'journalctl -f -u ralph -p debug -n 60'
 
 # Count DNS seed nodes.
 db-stats network="mainnet":
