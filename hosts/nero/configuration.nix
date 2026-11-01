@@ -230,6 +230,11 @@ in
     };
   };
 
+  # Keep substitutes cached until space is needed, collecting after publication.
+  systemd.services.guix-bitcoin-worker.serviceConfig.ExecStartPost = lib.mkAfter [
+    "+${config.services.guix.package}/bin/guix gc --free-space=50GB"
+  ];
+
   # Add guix-arm-offload-private-key to secrets/nero/secrets.yaml before enabling
   # services.neroGuixOffload. Keeping this declaration gated lets the current
   # x86-only deployment continue to build before the AWS host exists.
