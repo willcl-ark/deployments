@@ -1,0 +1,38 @@
+--- a/source-registry-0/octocrab-0.50.0/src/models.rs
++++ b/source-registry-0/octocrab-0.50.0/src/models.rs
+@@ -216,6 +216,8 @@
+     BaseRefForcePushed,
+     /// The issue or pull request was blocked by another issue or pull request. This is not documented in the Github issue events documentation, but has been observed in the wild.
+     BlockingAdded,
++    /// A dependency was added that blocks this issue.
++    BlockedByAdded,
+     /// The issue or pull request was closed. When the commit_id is present, it identifies the commit that closed the issue using "closes / fixes" syntax.
+     Closed,
+     /// A comment was added to the issue or pull request.
+--- a/source-registry-0/octocrab-0.50.0/src/models/timelines.rs
++++ b/source-registry-0/octocrab-0.50.0/src/models/timelines.rs
+@@ -83,6 +83,24 @@
+     pub review_requester: Option<Author>,
+     #[serde(skip_serializing_if = "Option::is_none")]
+     pub assignee: Option<Author>,
++    /// The issue that was added as a blocking dependency.
++    #[serde(skip_serializing_if = "Option::is_none")]
++    pub blocked_by: Option<BlockedByIssue>,
++}
++
++/// The issue summary supplied by a `blocked_by_added` timeline event.
++#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
++#[non_exhaustive]
++pub struct BlockedByIssue {
++    #[serde(skip_serializing_if = "Option::is_none")]
++    pub id: Option<IssueId>,
++    #[serde(skip_serializing_if = "Option::is_none")]
++    pub node_id: Option<String>,
++    pub number: u64,
++    pub title: String,
++    pub state: IssueState,
++    pub state_reason: Option<issues::IssueStateReason>,
++    pub repository: Repository,
+ }
+ 
+ #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

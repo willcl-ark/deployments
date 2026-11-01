@@ -3,16 +3,21 @@ let
   package =
     inputs.b10c-nix.packages.${pkgs.stdenv.hostPlatform.system}.github-metadata-backup.overrideAttrs
       (old: {
-        patches = (old.patches or [ ]) ++ [ ./patches/github-metadata-backup-raw-timeline.patch ];
-        # Octocrab initializes its TLS roots even for the loopback HTTP test.
-        preCheck = (old.preCheck or "") + ''
-          export SSL_CERT_FILE=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt
+        cargoDeps = pkgs.applyPatches {
+          name = "github-metadata-backup-vendor-blocked-by";
+          src = old.cargoDeps;
+          patches = [ ./patches/octocrab-blocked-by-added.patch ];
+        };
+        postPatch = (old.postPatch or "") + ''
+          mkdir -p tests
+          cp ${./patches/octocrab-blocked-by-added-test.rs} tests/blocked_by_added.rs
+          cp ${./patches/octocrab-blocked-by-added.json} tests/octocrab-blocked-by-added.json
         '';
       });
 in
 {
-  # GitHub adds timeline event kinds independently of the API client's releases.
-  # Archive their original JSON so one new event cannot stop metadata syncing.
+  # Octocrab 0.50 omits the blocked_by_added event returned for GUI issue 753.
+  # Keep typed timeline decoding and preserve the blocking issue relationship.
   services.github-metadata-backup.bitcoin.package = package;
   services.github-metadata-backup.gui-qml.package = package;
 }
