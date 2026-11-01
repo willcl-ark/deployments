@@ -376,7 +376,7 @@ in
     redir / /stats/reviews/
     redir /stats /stats/
     handle_path /stats/* {
-      root * ${config.services.ralph.reportDir}/stats
+      root * ${config.services.ralph.instances.core.reportDir}/stats
       header {
         Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; script-src 'self'; connect-src 'self'"
         X-Content-Type-Options nosniff
@@ -387,7 +387,7 @@ in
 
     redir /traces /traces/
     handle_path /traces/* {
-      root * ${config.services.ralph.reportDir}
+      root * ${config.services.ralph.instances.core.reportDir}
       header X-Content-Type-Options nosniff
       @history path_regexp ralph_history ^/(?:[0-9]+/(?:index[.]html)?|index[.]html)?$
       header @history Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; script-src 'self'; connect-src 'self'"
@@ -424,8 +424,9 @@ in
     }
   '';
 
-  services.ralph = {
+  services.ralph.instances.core = {
     enable = true;
+    serviceName = "ralph";
     origin = "${forgejoLocalUrl}/bitcoin/bitcoin.git";
     repository = "bitcoin/bitcoin";
     forgejoApi = "${forgejoLocalUrl}/api/v1/repos/bitcoin/bitcoin";
