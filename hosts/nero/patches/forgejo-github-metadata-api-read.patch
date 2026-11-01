@@ -1,0 +1,144 @@
+--- a/routers/api/v1/permissions/interface.go
++++ b/routers/api/v1/permissions/interface.go
+@@ -20,6 +20,7 @@
+ 	GetContext() context.Context
+ 
+ 	GetRepository() *repo_model.Repository
++	GetIsGitHubMetadataMirror() bool
+ 
+ 	GetDoer() *user_model.User
+ 
+--- a/routers/api/v1/permissions/permissions.go
++++ b/routers/api/v1/permissions/permissions.go
+@@ -33,6 +33,7 @@
+ 	reducer                 authz.AuthorizationReducer
+ 	publicOnly              bool
+ 	repository              *repo_model.Repository
++	isGitHubMetadataMirror  bool
+ 	permission              *access_model.Permission
+ 	packageOwner            *user_model.User
+ 	packageAccessMode       perm.AccessMode
+@@ -59,6 +60,14 @@
+ 
+ func (o *Permissions) GetRepository() *repo_model.Repository {
+ 	return o.repository
++}
++
++func (o *Permissions) GetIsGitHubMetadataMirror() bool {
++	return o.isGitHubMetadataMirror
++}
++
++func (o *Permissions) SetIsGitHubMetadataMirror(value bool) {
++	o.isGitHubMetadataMirror = value
+ }
+ 
+ func (o *Permissions) SetRepository(repository *repo_model.Repository) {
+--- a/routers/api/v1/permissions/must_allow_pulls.go
++++ b/routers/api/v1/permissions/must_allow_pulls.go
+@@ -9,8 +9,10 @@
+ )
+ 
+ func MustAllowPulls(ctx Context) {
+-	if !ctx.GetRepository().CanEnablePulls() || !ctx.GetPermission().CanRead(unit.TypePullRequests) {
+-		if ctx.GetRepository().CanEnablePulls() && log.IsTrace() {
++	repo := ctx.GetRepository()
++	canReadPulls := repo.CanEnablePulls() || (ctx.GetIsGitHubMetadataMirror() && !repo.IsEmpty)
++	if !canReadPulls || !ctx.GetPermission().CanRead(unit.TypePullRequests) {
++		if canReadPulls && log.IsTrace() {
+ 			if ctx.GetIsSigned() {
+ 				log.Trace("Permission Denied: User %-v cannot read %-v in Repo %-v\n"+
+ 					"User in Repo has Permissions: %-+v",
+--- a/routers/api/v1/permissions/must_enable_issues_or_pulls.go
++++ b/routers/api/v1/permissions/must_enable_issues_or_pulls.go
+@@ -9,9 +9,11 @@
+ )
+ 
+ func MustEnableIssuesOrPulls(ctx Context) {
++	repo := ctx.GetRepository()
++	canReadPulls := repo.CanEnablePulls() || (ctx.GetIsGitHubMetadataMirror() && !repo.IsEmpty)
+ 	if !ctx.GetPermission().CanRead(unit.TypeIssues) &&
+-		(!ctx.GetRepository().CanEnablePulls() || !ctx.GetPermission().CanRead(unit.TypePullRequests)) {
+-		if ctx.GetRepository().CanEnablePulls() && log.IsTrace() {
++		(!canReadPulls || !ctx.GetPermission().CanRead(unit.TypePullRequests)) {
++		if canReadPulls && log.IsTrace() {
+ 			if ctx.GetIsSigned() {
+ 				log.Trace("Permission Denied: User %-v cannot read %-v and %-v in Repo %-v\n"+
+ 					"User in Repo has Permissions: %-+v",
+--- a/services/context/api.go
++++ b/services/context/api.go
+@@ -191,6 +191,10 @@
+ 	return ctx.Repo.Repository
+ }
+ 
++func (ctx *APIContext) GetIsGitHubMetadataMirror() bool {
++	return ctx.Repo.IsGitHubMetadataMirror
++}
++
+ func (ctx *APIContext) GetDoer() *user_model.User {
+ 	return ctx.Doer
+ }
+--- /dev/null
++++ b/routers/api/v1/permissions/metadata_mirror_test.go
+@@ -0,0 +1,62 @@
++// Copyright 2026 The Forgejo Authors.
++// SPDX-License-Identifier: GPL-3.0-or-later
++
++package permissions
++
++import (
++	"net/http"
++	"testing"
++
++	"forgejo.org/models/perm"
++	access_model "forgejo.org/models/perm/access"
++	repo_model "forgejo.org/models/repo"
++	"forgejo.org/models/unit"
++)
++
++func TestMetadataMirrorPullPermissions(t *testing.T) {
++	for _, test := range []struct {
++		name                                           string
++		mirror, metadata, empty, readPulls, readIssues bool
++		pullsAllowed, issuesOrPullsAllowed             bool
++	}{
++		{name: "ordinary repository", readPulls: true, pullsAllowed: true, issuesOrPullsAllowed: true},
++		{name: "metadata mirror", mirror: true, metadata: true, readPulls: true, pullsAllowed: true, issuesOrPullsAllowed: true},
++		{name: "plain mirror", mirror: true, readPulls: true},
++		{name: "empty metadata mirror", mirror: true, metadata: true, empty: true, readPulls: true},
++		{name: "metadata mirror without read access", mirror: true, metadata: true},
++		{name: "issue access only", mirror: true, metadata: true, readIssues: true, issuesOrPullsAllowed: true},
++	} {
++		t.Run(test.name, func(t *testing.T) {
++			for _, check := range []struct {
++				name    string
++				fn      func(Context)
++				allowed bool
++			}{
++				{"pulls", MustAllowPulls, test.pullsAllowed},
++				{"issues or pulls", MustEnableIssuesOrPulls, test.issuesOrPullsAllowed},
++			} {
++				t.Run(check.name, func(t *testing.T) {
++					ctx := &Permissions{}
++					ctx.SetRepository(&repo_model.Repository{IsMirror: test.mirror, IsEmpty: test.empty})
++					ctx.SetIsGitHubMetadataMirror(test.metadata)
++					modes := map[unit.Type]perm.AccessMode{}
++					if test.readPulls {
++						modes[unit.TypePullRequests] = perm.AccessModeRead
++					}
++					if test.readIssues {
++						modes[unit.TypeIssues] = perm.AccessModeRead
++					}
++					ctx.SetPermission(&access_model.Permission{UnitsMode: modes})
++					check.fn(ctx)
++					want := http.StatusNotFound
++					if check.allowed {
++						want = 0
++					}
++					if got := ctx.WrittenStatus(); got != want {
++						t.Fatalf("status = %d, want %d", got, want)
++					}
++				})
++			}
++		})
++	}
++}

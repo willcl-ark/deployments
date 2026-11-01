@@ -30,6 +30,7 @@ in
         doCheck = false;
         patches = (prev.forgejo.patches or []) ++ [
           ./patches/ralph-comments.patch
+          ./patches/forgejo-github-metadata-api-read.patch
           ./patches/forgejo-github-metadata-sync-webhook.patch
           ./patches/forgejo-github-metadata-comment-edits.patch
           ./patches/forgejo-github-metadata-review-comment-map.patch
