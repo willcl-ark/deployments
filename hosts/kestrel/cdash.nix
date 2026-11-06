@@ -19,6 +19,8 @@
       postInstall = (old.postInstall or "") + ''
         substituteInPlace "$out/share/php/cdash/config/mail.php" \
           --replace-fail "'transport' => 'smtp'," "'transport' => 'smtp', 'require_tls' => true,"
+        substituteInPlace "$out/share/php/cdash/config/session.php" \
+          --replace-fail "'secure' => false," "'secure' => true,"
       '';
     });
     hostName = host.domain;
@@ -59,6 +61,7 @@
   services.caddy = {
     enable = true;
     virtualHosts.${host.domain}.extraConfig = ''
+      header Strict-Transport-Security "max-age=31536000"
       reverse_proxy 127.0.0.1:8080
     '';
   };
