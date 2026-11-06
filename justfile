@@ -32,7 +32,7 @@ switch host:
 
 # Update the five always-on hosts.
 [private]
-switch-all: switch-nero switch-beelink switch-fish-foo switch-cdash-server switch-guix-publish-2
+switch-all: switch-nero switch-beelink switch-fish-foo switch-kestrel switch-guix-publish-2
 
 # Update Nero.
 [private]
@@ -75,8 +75,8 @@ switch-fish-foo:
 
 # Update CDash through sudo.
 [private]
-switch-cdash-server:
-    NIX_SSHOPTS="-i $HOME/.ssh/hetzner-temp" nixos-rebuild switch --flake .#cdash-server --build-host will@46.225.46.115 --target-host will@46.225.46.115 --sudo --no-reexec --no-update-lock-file
+switch-kestrel:
+    NIX_SSHOPTS="-i $HOME/.ssh/hetzner-temp" nixos-rebuild switch --flake .#kestrel --build-host will@46.225.46.115 --target-host will@46.225.46.115 --sudo --no-reexec --no-update-lock-file
 
 # Update the Guix publisher.
 [private]
@@ -94,7 +94,7 @@ switch-remote host:
 
 # Update ready hosts; excludes fish.foo and ARM.
 [private]
-switch-remote-all: switch-remote-nero switch-remote-beelink switch-remote-cdash-server switch-remote-guix-publish-2
+switch-remote-all: switch-remote-nero switch-remote-beelink switch-remote-kestrel switch-remote-guix-publish-2
 
 # Sync and switch Nero remotely.
 [private]
@@ -117,9 +117,9 @@ switch-remote-beelink:
 
 # Sync and switch CDash through sudo.
 [private]
-switch-remote-cdash-server:
+switch-remote-kestrel:
     rsync -az --delete --mkpath --exclude='.git' --filter=':- .gitignore' -e "ssh -i $HOME/.ssh/hetzner-temp" --rsync-path='sudo -n rsync' ./ will@46.225.46.115:/var/lib/nixos-deployments/
-    ssh -i "$HOME/.ssh/hetzner-temp" will@46.225.46.115 'sudo -n nixos-rebuild switch --flake path:/var/lib/nixos-deployments#cdash-server --no-update-lock-file'
+    ssh -i "$HOME/.ssh/hetzner-temp" will@46.225.46.115 'sudo -n nixos-rebuild switch --flake path:/var/lib/nixos-deployments#kestrel --no-update-lock-file'
 
 # Sync and switch the Guix publisher remotely.
 [private]
@@ -152,8 +152,8 @@ deploy-fish-foo:
 # Fresh-install CDash.
 [confirm('Erase the disks on CDash and install NixOS?')]
 [private]
-deploy-cdash-server:
-    nix run --no-update-lock-file .#nixos-anywhere -- --flake .#cdash-server --target-host root@46.225.46.115 --ssh-port 22 -i "$HOME/.ssh/hetzner-temp" --kexec-extra-flags --kexec-syscall --extra-files "$HOME/.config/deployments/cdash-server"
+deploy-kestrel:
+    nix run --no-update-lock-file .#nixos-anywhere -- --flake .#kestrel --target-host root@46.225.46.115 --ssh-port 22 -i "$HOME/.ssh/hetzner-temp" --kexec-extra-flags --kexec-syscall --extra-files "$HOME/.config/deployments/kestrel"
 
 # Fresh-install the Guix publisher.
 [confirm('Erase the disks on guix-publish-2 and install NixOS?')]

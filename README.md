@@ -1,6 +1,6 @@
 # Server deployments
 
-This flake is the deployment entry point for Nero, Beelink, fish.foo, CDash,
+This flake is the deployment entry point for Nero, Beelink, fish.foo, Kestrel for CDash,
 Guix publish and the on-demand ARM Guix builder. Server configurations share a
 pinned `nixos-unstable` and SOPS-Nix. Other service modules retain their existing
 independent pins. Deployment commands are explicit per-host just recipes.
@@ -18,7 +18,7 @@ just switch-remote nero
 ```
 
 `switch` evaluates locally, builds on the target, and activates there with
-`nixos-rebuild`. CDash uses `satoshi` with sudo; the other machines use root.
+`nixos-rebuild`. CDash on Kestrel uses `will` with sudo; the other machines use root.
 It does not synchronize or overwrite `/etc/nixos`. Run future deployments here.
 SSH aliases and identities come from your SSH configuration, with Nero's port
 2222 and the ARM and CDash identity paths set in their just recipes.
@@ -148,7 +148,7 @@ tree matching the destination filesystem. nixos-anywhere copies it with
 | --- | --- |
 | nero | `var/lib/sops-nix/key.txt` |
 | fish-foo | `root/.config/sops/age/keys.txt` |
-| cdash-server | `etc/ssh/ssh_host_ed25519_key` |
+| kestrel | `etc/ssh/ssh_host_ed25519_key` |
 | guix-publish-2 | `var/lib/sops-nix/key.txt` |
 
 For example, prepare Nero's files once using its existing age identity:
@@ -207,3 +207,17 @@ Use `just --dry-run switch-all` to inspect routing, `just check` for evaluation,
 and `just build HOST` to verify builds without activation.
 [Migration notes](docs/migration.md) record the source inventory and comparison
 checks. `implementation.md` records local design decisions and is not committed.
+
+## Kestrel CDash host
+
+`kestrel` replaces the former `cdash-server` host name. It serves
+`https://cdash.fish.foo` on the existing machine at `46.225.46.115`.
+Use `just build kestrel` to build without activation. Future updates use
+`just switch kestrel` or `just switch-remote kestrel`.
+
+The pinned `cdash-src` input supplies the CDash 5.5.2 package and service module.
+Host settings live in `hosts/kestrel/`, including the 192 MiB upload limit,
+256 MiB request limit and 2000-second submission timeouts from the source
+checkout. Keep the existing database, `/var/lib/cdash`, and application key
+when switching. The project's 5 GiB attachment quota is stored in its database.
+Back up that database before upgrading; a NixOS rollback cannot undo migrations.

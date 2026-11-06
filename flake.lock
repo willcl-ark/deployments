@@ -181,23 +181,20 @@
         "type": "github"
       }
     },
-    "cdash-will-nix": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
+    "cdash-src": {
+      "flake": false,
       "locked": {
-        "lastModified": 1791865549,
-        "narHash": "sha256-ncS68dpn9wcPzguxLQSJ1KkKyaR3QRs3F9jFPTCcSSA=",
-        "owner": "willcl-ark",
-        "repo": "nix",
-        "rev": "dcb6d65755d29d2d4edd573caf776f485f79e44b",
+        "lastModified": 1793290984,
+        "narHash": "sha256-2eaVeKip43ksYxK4c8WF7jGwJo7nKBXo6S25EUIYbhw=",
+        "owner": "bitcoin-dev-tools",
+        "repo": "cdash-server",
+        "rev": "043e9cf4d40caf77f10811620854a6a55d474ea4",
         "type": "github"
       },
       "original": {
-        "owner": "willcl-ark",
-        "repo": "nix",
+        "owner": "bitcoin-dev-tools",
+        "repo": "cdash-server",
+        "rev": "043e9cf4d40caf77f10811620854a6a55d474ea4",
         "type": "github"
       }
     },
@@ -490,7 +487,7 @@
       "inputs": {
         "bitcoin-core-ci": "bitcoin-core-ci",
         "cdash-disko": "cdash-disko",
-        "cdash-will-nix": "cdash-will-nix",
+        "cdash-src": "cdash-src",
         "fish-app-src": "fish-app-src",
         "fish-disko": "fish-disko",
         "guix-disko": "guix-disko",

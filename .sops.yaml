@@ -22,7 +22,7 @@ creation_rules:
   - path_regex: ^secrets/fish-foo/.*\.yaml$
     key_groups:
       - age: [*will, *fish_foo]
-  - path_regex: ^secrets/cdash-server/.*\.sops\.yaml$
+  - path_regex: ^secrets/kestrel/.*\.sops\.yaml$
     key_groups:
       - age: [*will, *cdash]
   - path_regex: ^secrets/guix-publish-2/signing-key\.(pub|sec)$

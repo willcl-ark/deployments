@@ -11,7 +11,7 @@
     inputGroup = "fish";
     system = "x86_64-linux";
   };
-  cdash-server = {
+  kestrel = {
     inputGroup = "cdash";
     system = "x86_64-linux";
   };

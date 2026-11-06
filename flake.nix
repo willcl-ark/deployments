@@ -39,9 +39,9 @@
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    cdash-will-nix = {
-      url = "github:willcl-ark/nix";
-      inputs.nixpkgs.follows = "nixpkgs";
+    cdash-src = {
+      url = "github:bitcoin-dev-tools/cdash-server/043e9cf4d40caf77f10811620854a6a55d474ea4";
+      flake = false;
     };
     guix-disko = {
       url = "github:nix-community/disko";
@@ -98,7 +98,7 @@
         cdash = {
           nixpkgs = inputs.nixpkgs;
           disko = inputs.cdash-disko;
-          will-nix = inputs.cdash-will-nix;
+          cdash-src = inputs.cdash-src;
           sops-nix = inputs.sops-nix;
         };
         guix = {

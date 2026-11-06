@@ -1,5 +1,5 @@
 {
-  hostName = "cdash-server";
+  hostName = "kestrel";
   domain = "cdash.fish.foo";
   # SSH destination. The OS gets its IPv4 address through DHCP below.
   address = "46.225.46.115";

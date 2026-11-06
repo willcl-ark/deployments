@@ -5,7 +5,7 @@ in
 {
   imports = [
     inputs.disko.nixosModules.disko
-    inputs.will-nix.nixosModules.cdash
+    (inputs.cdash-src + "/modules/cdash/nixos")
     inputs.sops-nix.nixosModules.sops
     host.hardware.module
     ./disk-config.nix
