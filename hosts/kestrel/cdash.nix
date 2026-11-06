@@ -8,6 +8,9 @@
     secrets.cdash-app-key.restartUnits = [ "cdash-init.service" ];
   };
 
+  # Let the CDash module supply plain phpEnv strings: NixOS already quotes them.
+  # JSON-encoding them again puts literal quotes in APP_BASE_PATH, breaking
+  # Laravel bootstrap with HTTP 500 even though CLI initialization succeeds.
   services.cdash = {
     enable = true;
     hostName = host.domain;
@@ -34,15 +37,6 @@
   systemd.services.cdash-worker.serviceConfig.ExecStart = lib.mkForce (
     "${config.services.cdash.package.phpPackage}/bin/php -d variables_order=EGPCS "
     + "${config.services.cdash.dataDir}/app/artisan queue:work --timeout=2000 --max-time=3600 --memory=256"
-  );
-
-  # PHP-FPM's INI parser treats unquoted false and null as empty values.
-  services.phpfpm.pools.cdash.phpEnv = lib.mkForce (
-    lib.mapAttrs (_: value: builtins.toJSON value) (
-      config.services.cdash.settings // {
-        APP_BASE_PATH = "${config.services.cdash.dataDir}/app";
-      }
-    )
   );
 
   services.caddy = {
