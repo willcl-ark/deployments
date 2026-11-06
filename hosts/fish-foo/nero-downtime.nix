@@ -10,7 +10,7 @@ in
   sops.secrets.nero-bot-token = { };
 
   systemd.services.nero-downtime = {
-    description = "Check Nero public services and notify Telegram";
+    description = "Check Nero and Kestrel public services and notify Telegram";
     after = [
       "network-online.target"
       "sops-install-secrets.service"
@@ -45,7 +45,7 @@ in
   };
 
   systemd.services.nero-telegram-commands = {
-    description = "Answer private Telegram queries about Nero availability";
+    description = "Answer private Telegram queries about Nero and Kestrel availability";
     wantedBy = [ "multi-user.target" ];
     after = [
       "network-online.target"
@@ -81,7 +81,7 @@ in
   };
 
   systemd.timers.nero-downtime = {
-    description = "Check Nero every minute";
+    description = "Check Nero and Kestrel every minute";
     wantedBy = [ "timers.target" ];
     timerConfig = {
       OnBootSec = "1min";

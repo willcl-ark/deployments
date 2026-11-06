@@ -238,13 +238,21 @@ worker when they remain non-active for a minute. These checks observe loaded
 systemd units; they do not detect a removed unit or a stalled queue in an active
 worker. They are not database query or backup-integrity checks.
 
-Nero checks `https://cdash.fish.foo/` every five seconds, accepting HTTP 200 with
-normal TLS verification. Netdata's stock HTTP alarms notify on bad status,
-timeouts or connection failures over a five-minute window. This covers Kestrel
-outages while Nero is available. It does not exercise build submission.
+Fish.foo checks Nero's existing public endpoints and `https://cdash.fish.foo/`
+every minute. CDash must return HTTP 200 after at most five HTTPS redirects,
+with normal TLS verification. Each
+host has independent outage counters: three consecutive failing checks trigger
+an alert, continuing outages repeat hourly, and recovery sends a notification.
+The Telegram `/status` command runs fresh checks and groups results by host.
+These availability checks do not exercise build submission or report disk usage.
+
+The first switch to the two-host watchdog resets the old Nero outage counters.
+The command poller's saved Telegram offset is retained. The existing
+`nero-downtime` timer and `nero-telegram-commands` service names are unchanged.
 
 The bot token is separately encrypted in `secrets/kestrel/telegram.sops.yaml`
 for the existing Kestrel and operator identities. Token changes restart Netdata.
 No new identity or bot is needed. Monitoring takes effect after switching
-Kestrel, and the external check after switching Nero. Neither activation nor
+Kestrel, and the external checks after switching fish.foo. Switch Nero to remove
+its duplicate CDash HTTP check. Neither activation nor
 Telegram delivery is verified by a local build.

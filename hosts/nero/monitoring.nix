@@ -33,14 +33,6 @@
     };
     configDir = {
       "health_alarm_notify.conf" = config.sops.templates."netdata-telegram".path;
-      # Check from another host so a Kestrel outage can still notify Telegram.
-      "go.d/httpcheck.conf" = pkgs.writeText "cdash-httpcheck.conf" ''
-        jobs:
-          - name: cdash
-            url: https://cdash.fish.foo/
-            timeout: 10
-            status_accepted: [200]
-      '';
       "health.d/disks.conf" = pkgs.writeText "nero-disk-alerts.conf" ''
         template: disk_space_usage
               on: disk.space

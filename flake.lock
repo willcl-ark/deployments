@@ -201,8 +201,8 @@
     "fish-app-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1793263647,
-        "narHash": "sha256-6Da4mhwxXx0n06SuoyTd5+pynASF0jlxCbgtot/hrkU=",
+        "lastModified": 1793978564,
+        "narHash": "sha256-4KjmkR1iDPKcPiP7cwwcX7+iUfc1ZwgmYBP8zvV4Imk=",
         "path": "/home/will/src/fish.foo",
         "type": "path"
       },
