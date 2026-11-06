@@ -1,4 +1,4 @@
-{ config, host, lib, ... }:
+{ config, host, inputs, lib, pkgs, ... }:
 
 {
   sops = {
@@ -6,6 +6,7 @@
     age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
     gnupg.sshKeyPaths = [ ];
     secrets.cdash-app-key.restartUnits = [ "cdash-init.service" ];
+    secrets.cdash-smtp-password.restartUnits = [ "cdash-init.service" ];
   };
 
   # Let the CDash module supply plain phpEnv strings: NixOS already quotes them.
@@ -13,11 +14,27 @@
   # Laravel bootstrap with HTTP 500 even though CLI initialization succeeds.
   services.cdash = {
     enable = true;
+    # Laravel ignores MAIL_ENCRYPTION; require TLS before SMTP authentication.
+    package = (pkgs.callPackage (inputs.cdash-src + "/pkgs/cdash") { }).overrideAttrs (old: {
+      postInstall = (old.postInstall or "") + ''
+        substituteInPlace "$out/share/php/cdash/config/mail.php" \
+          --replace-fail "'transport' => 'smtp'," "'transport' => 'smtp', 'require_tls' => true,"
+      '';
+    });
     hostName = host.domain;
     appUrl = "https://${host.domain}";
     appKeyFile = config.sops.secrets.cdash-app-key.path;
     backupTimeframe = 90 * 24;
-    mail.mailer = "log";
+    mail = {
+      mailer = "smtp";
+      host = "smtp.mailbox.org";
+      port = 587;
+      encryption = "tls";
+      user = "will@256k1.dev";
+      fromAddress = "cdash@fish.foo";
+      replyAddress = "cdash@fish.foo";
+      passwordFile = config.sops.secrets.cdash-smtp-password.path;
+    };
   };
 
   # Retain the source checkout's upload limits and submission timeouts.
