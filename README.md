@@ -226,7 +226,8 @@ Back up that database before upgrading; a NixOS rollback cannot undo migrations.
 ### Kestrel monitoring
 
 Netdata monitors Kestrel with Telegram alerts to the same bot and chat as Nero.
-The dashboard listens on localhost only. Root filesystem space and inode usage
+It uses the default nixpkgs package without the bundled cloud UI, and its HTTP
+API listens on localhost only. Root filesystem space and inode usage
 warn above 80% and become critical above 90%. Estimated time until full warns
 below eight hours and becomes critical below two hours. Each of Netdata's three
 storage tiers has a 256 MiB retention limit.

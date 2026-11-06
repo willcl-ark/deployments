@@ -1,6 +1,5 @@
 {
   config,
-  lib,
   pkgs,
   ...
 }:
@@ -20,11 +19,8 @@
     '';
   };
 
-  nixpkgs.config.allowUnfreePredicate = pkg: lib.getName pkg == "netdata";
-
   services.netdata = {
     enable = true;
-    package = pkgs.netdata.override { withCloudUi = true; };
     enableAnalyticsReporting = false;
     config = {
       web."bind to" = "127.0.0.1";
