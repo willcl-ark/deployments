@@ -198,19 +198,6 @@
         "type": "github"
       }
     },
-    "fish-app-src": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1793978564,
-        "narHash": "sha256-4KjmkR1iDPKcPiP7cwwcX7+iUfc1ZwgmYBP8zvV4Imk=",
-        "path": "/home/will/src/fish.foo",
-        "type": "path"
-      },
-      "original": {
-        "path": "/home/will/src/fish.foo",
-        "type": "path"
-      }
-    },
     "fish-disko": {
       "inputs": {
         "nixpkgs": [
@@ -488,7 +475,6 @@
         "bitcoin-core-ci": "bitcoin-core-ci",
         "cdash-disko": "cdash-disko",
         "cdash-src": "cdash-src",
-        "fish-app-src": "fish-app-src",
         "fish-disko": "fish-disko",
         "guix-disko": "guix-disko",
         "guix-will-nix": "guix-will-nix",

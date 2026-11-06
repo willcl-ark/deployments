@@ -8,17 +8,6 @@
     ./configuration.nix
   ];
 
-  _module.args.fishSource = inputs.nixpkgs.lib.cleanSourceWith {
-    src = inputs.fish-app-src;
-    filter =
-      path: _type:
-      builtins.elem (builtins.baseNameOf path) [
-        "server.py"
-        "nero_watchdog.py"
-        "nero_commands.py"
-      ];
-  };
-
   _module.args.settings = {
     hostName = "fish-foo";
     domain = "fish.foo";

@@ -31,11 +31,10 @@ The sync includes uncommitted edits, excludes `.git` and gitignored files, and
 deletes stale files from that dedicated directory. It leaves `/etc/nixos` alone.
 CDash uses sudo for both the sync and rebuild. No lock pins are updated.
 
-`switch-remote all` currently covers Nero, Beelink, CDash and guix-publish-2.
-Use `switch-remote guix-arm-builder` explicitly when ARM is running. Remote
-switching for fish.foo is deferred until its local application input is
-published; use the existing `switch fish-foo` meanwhile. Preview the commands
-with `just --dry-run switch-remote-all` or `just --dry-run switch-remote-nero`.
+`switch-remote all` covers Nero, Beelink, fish.foo, CDash and guix-publish-2.
+Use `switch-remote guix-arm-builder` explicitly when ARM is running. Preview the
+commands with `just --dry-run switch-remote-all` or a per-host recipe such as
+`just --dry-run switch-remote-fish-foo`.
 
 `switch all` updates the five always-on hosts sequentially and stops on the
 first error. It does not roll back hosts already updated. The ARM builder is
@@ -86,14 +85,23 @@ remain in host files. Keep `system.stateVersion` at its existing value when
 changing nixpkgs.
 
 Beelink imports application code from the pinned `bitcoin-core-ci` input. Its
-runtime CI jobs use that repository's flake and toolchain pins. Fish's application
-code stays in `/home/will/src/fish.foo`, consumed through the `fish-app-src`
-source input. The Nix configuration selects only its three service scripts.
-This preserves the existing uncommitted application change and keeps application
-code outside this repository. Until that application has a remote repository,
-this input depends on its local path and the flake is not fully portable. Run
-`nix flake update fish-app-src` after intentionally updating the application.
-Other reusable services come from pinned module repositories.
+runtime CI jobs use that repository's flake and toolchain pins.
+
+Fish.foo is self-contained in this repository. Its rendezvous server, availability watchdog, Telegram command
+handler and application tests live in `hosts/fish-foo/app/`; the Nix modules
+reference those files directly. Edit and deploy fish.foo here with
+`just switch-remote fish-foo`. The old `/home/will/src/fish.foo` checkout is no
+longer an input or deployment entry point. Other reusable services come from
+pinned module repositories.
+
+Run fish.foo's application tests without contacting Telegram or live services:
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s hosts/fish-foo/app -p 'test_*.py'
+```
+
+The next fish.foo switch from this repository also moves the host from its
+legacy NixOS 25.11 configuration to this flake's pinned 26.11 configuration.
 
 ## Host operations
 

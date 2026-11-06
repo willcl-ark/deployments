@@ -2,7 +2,6 @@
   pkgs,
   config,
   settings,
-  fishSource,
   ...
 }:
 let
@@ -166,7 +165,7 @@ in
     wants = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
-      ExecStart = "${pkgs.python3}/bin/python3 ${fishSource}/server.py 57996";
+      ExecStart = "${pkgs.python3}/bin/python3 ${./app/server.py} 57996";
       DynamicUser = true;
       Restart = "always";
       RestartSec = "5s";

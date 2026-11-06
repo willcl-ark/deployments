@@ -51,10 +51,6 @@
       url = "github:willcl-ark/nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    fish-app-src = {
-      url = "path:/home/will/src/fish.foo";
-      flake = false;
-    };
     bitcoin-core-ci.url = "github:willcl-ark/bitcoin-core-ci/da376218193e56a123d0c57014986ca2f0887cdf";
   };
 
@@ -92,7 +88,6 @@
         fish = {
           nixpkgs = inputs.nixpkgs;
           disko = inputs.fish-disko;
-          fish-app-src = inputs.fish-app-src;
           sops-nix = inputs.sops-nix;
         };
         cdash = {

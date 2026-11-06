@@ -1,9 +1,9 @@
-{ config, pkgs, fishSource, ... }:
+{ config, pkgs, ... }:
 let
   commands = pkgs.runCommand "nero-telegram-commands" { } ''
     mkdir -p $out
-    cp ${fishSource}/nero_watchdog.py $out/nero_watchdog.py
-    cp ${fishSource}/nero_commands.py $out/nero_commands.py
+    cp ${./app/nero_watchdog.py} $out/nero_watchdog.py
+    cp ${./app/nero_commands.py} $out/nero_commands.py
   '';
 in
 {
@@ -25,7 +25,7 @@ in
     ];
     serviceConfig = {
       Type = "oneshot";
-      ExecStart = "${pkgs.python3}/bin/python3 ${fishSource}/nero_watchdog.py";
+      ExecStart = "${pkgs.python3}/bin/python3 ${./app/nero_watchdog.py}";
       LoadCredential = "telegram-token:${config.sops.secrets.nero-bot-token.path}";
       DynamicUser = true;
       StateDirectory = "nero-downtime";

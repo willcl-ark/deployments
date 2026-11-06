@@ -92,9 +92,9 @@ switch-guix-arm-builder:
 switch-remote host:
     @just switch-remote-"$1"
 
-# Update ready hosts; excludes fish.foo and ARM.
+# Update always-on hosts; excludes ARM.
 [private]
-switch-remote-all: switch-remote-nero switch-remote-beelink switch-remote-kestrel switch-remote-guix-publish-2
+switch-remote-all: switch-remote-nero switch-remote-beelink switch-remote-fish-foo switch-remote-kestrel switch-remote-guix-publish-2
 
 # Sync and switch Nero remotely.
 [private]
@@ -114,6 +114,12 @@ switch-remote-nero:
 switch-remote-beelink:
     rsync -az --delete --mkpath --exclude='.git' --filter=':- .gitignore' ./ root@beelink:/var/lib/nixos-deployments/
     ssh root@beelink 'nixos-rebuild switch --flake path:/var/lib/nixos-deployments#beelink --no-update-lock-file'
+
+# Sync and switch fish.foo remotely.
+[private]
+switch-remote-fish-foo:
+    rsync -az --delete --mkpath --exclude='.git' --filter=':- .gitignore' ./ root@fish.foo:/var/lib/nixos-deployments/
+    ssh root@fish.foo 'nixos-rebuild switch --flake path:/var/lib/nixos-deployments#fish-foo --no-update-lock-file'
 
 # Sync and switch CDash through sudo.
 [private]
