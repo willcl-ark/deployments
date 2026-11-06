@@ -29,7 +29,7 @@
   users.mutableUsers = false;
   users.users = {
     root.hashedPassword = "!";
-    # Administration uses will with sudo, not root SSH.
+    # Administration uses satoshi with sudo, not root SSH.
     root.openssh.authorizedKeys.keyFiles = [ ];
   } // lib.mapAttrs (_: keys: {
     isNormalUser = true;

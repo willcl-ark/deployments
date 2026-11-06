@@ -2,13 +2,11 @@
   hostName = "kestrel";
   domain = "cdash.fish.foo";
   # SSH destination. The OS gets its IPv4 address through DHCP below.
-  address = "46.225.46.115";
+  address = "kestrel";
 
   ssh = {
     installUser = "root";
-    # Local private key path, used by the deployment commands only.
-    identityFile = "~/.ssh/hetzner-temp";
-    users.will = [
+    users.satoshi = [
       (builtins.readFile ../../../public-keys/will.pub)
     ];
   };

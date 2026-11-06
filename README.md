@@ -18,10 +18,11 @@ just switch-remote nero
 ```
 
 `switch` evaluates locally, builds on the target, and activates there with
-`nixos-rebuild`. CDash on Kestrel uses `will` with sudo; the other machines use root.
+`nixos-rebuild`. CDash on Kestrel uses `satoshi` with sudo; the other machines use root.
 It does not synchronize or overwrite `/etc/nixos`. Run future deployments here.
 SSH aliases and identities come from your SSH configuration, with Nero's port
-2222 and the ARM and CDash identity paths set in their just recipes.
+2222 and the ARM identity path set in their just recipes. Kestrel uses the
+`kestrel` SSH alias and its configured identity, with `satoshi` for updates.
 
 `switch-remote HOST` rsyncs the working tree into `/var/lib/nixos-deployments`
 and runs `nixos-rebuild` there over SSH. Evaluation, dependency downloads,
@@ -74,7 +75,7 @@ covered; coordinate those separately.
 
 The common module sets UTC, `en_GB.UTF-8`, SSH key authentication, flakes and
 the shared tools: Git, htop, curl and Ghostty terminfo. It grants the admin key
-root access by default. CDash instead grants that same key to `will` with sudo
+root access by default. CDash instead grants that same key to `satoshi` with sudo
 and disables root SSH. ARM retains its separate builder key as well.
 
 Add settings or tools in `modules/common.nix` to apply them everywhere. Host
