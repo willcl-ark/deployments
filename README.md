@@ -222,3 +222,28 @@ Host settings live in `hosts/kestrel/`, including the 192 MiB upload limit,
 checkout. Keep the existing database, `/var/lib/cdash`, and application key
 when switching. The project's 5 GiB attachment quota is stored in its database.
 Back up that database before upgrading; a NixOS rollback cannot undo migrations.
+
+### Kestrel monitoring
+
+Netdata monitors Kestrel with Telegram alerts to the same bot and chat as Nero.
+The dashboard listens on localhost only. Root filesystem space and inode usage
+warn above 80% and become critical above 90%. Estimated time until full warns
+below eight hours and becomes critical below two hours. Each of Netdata's three
+storage tiers has a 256 MiB retention limit.
+
+Stock memory and swap alerts warn above 90% use and become critical above 98%.
+Explicit service alerts cover PostgreSQL, Caddy, nginx, PHP-FPM and the CDash
+worker when they remain non-active for a minute. These checks observe loaded
+systemd units; they do not detect a removed unit or a stalled queue in an active
+worker. They are not database query or backup-integrity checks.
+
+Nero checks `https://cdash.fish.foo/` every five seconds, accepting HTTP 200 with
+normal TLS verification. Netdata's stock HTTP alarms notify on bad status,
+timeouts or connection failures over a five-minute window. This covers Kestrel
+outages while Nero is available. It does not exercise build submission.
+
+The bot token is separately encrypted in `secrets/kestrel/telegram.sops.yaml`
+for the existing Kestrel and operator identities. Token changes restart Netdata.
+No new identity or bot is needed. Monitoring takes effect after switching
+Kestrel, and the external check after switching Nero. Neither activation nor
+Telegram delivery is verified by a local build.

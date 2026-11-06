@@ -10,6 +10,7 @@ in
     host.hardware.module
     ./disk-config.nix
     ./configuration.nix
+    ./monitoring.nix
     ./cdash.nix
   ];
 
