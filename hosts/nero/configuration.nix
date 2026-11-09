@@ -402,6 +402,17 @@ in
       file_server
     }
 
+    redir /report /report/
+    redir /report/ /traces/
+    handle_path /report/* {
+      root * ${config.services.ralph.reportDir}/reports
+      header {
+        Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; script-src 'self'"
+        X-Content-Type-Options nosniff
+      }
+      file_server
+    }
+
     redir /traces /traces/
     handle_path /traces/* {
       root * ${config.services.ralph.reportDir}
@@ -447,7 +458,8 @@ in
     # Preserve Core history and include every repository in the existing backup.
     stateDir = "/var/lib/forgejo-review-bot";
     reportDir = "/var/lib/forgejo-review-reports";
-    reportBaseUrl = "https://review.fish.foo/traces";
+    reportBaseUrl = "https://review.fish.foo/report";
+    archiveBaseUrl = "https://review.fish.foo/traces";
     telegram = {
       enable = true;
       botTokenFile = config.sops.secrets.ralph-telegram-token.path;
