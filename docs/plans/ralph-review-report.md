@@ -1,6 +1,10 @@
 # Ralph Review report and Run archive
 
-Status: proposed implementation plan. No application changes made.
+Status: implemented and deployed to Nero on 2026-11-09 through shared revision
+`0813b04` and deployment pin `69c9fbf`. Production feedback tightened the human
+renderer to approved structured fields and a brief coverage notice; raw coverage
+logs remain in the archive. See the service operations guide for the final
+refresh procedure. The design below records the original plan.
 
 ## Outcome
 
