@@ -20,7 +20,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nero-dnsseedrs = {
-      url = "github:willcl-ark/dnsseedrs/master";
+      url = "github:willcl-ark/dnsseedrs/main";
       flake = false;
     };
     nero-forgejo-src = {

@@ -357,7 +357,7 @@
       },
       "original": {
         "owner": "willcl-ark",
-        "ref": "master",
+        "ref": "main",
         "repo": "dnsseedrs",
         "type": "github"
       }
