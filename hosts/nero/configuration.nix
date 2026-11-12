@@ -18,6 +18,7 @@ in
     ./guix-arm-lifecycle.nix
     ./guix-offload.nix
     ./hardware-configuration.nix
+    ./arti.nix
     ./dnsseedrs-wireguard.nix
     ./monitoring.nix
     ./ralph-backup.nix

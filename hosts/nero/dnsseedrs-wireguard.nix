@@ -14,14 +14,6 @@ let
   namespaceAddress = "10.200.1.1";
   hostAddress = "10.200.1.0";
 
-  artiConfig = (pkgs.formats.toml { }).generate "arti.toml" {
-    proxy.socks_listen = "${hostAddress}:9150";
-    storage = {
-      cache_dir = "/var/cache/arti";
-      state_dir = "/var/lib/arti";
-    };
-  };
-
   wireguardInterface = "wg-dnsseedrs";
   wireguardAddress = "10.200.0.1/32";
   wireguardAddress6 = "fd42:200:200::1/128";
@@ -153,40 +145,6 @@ in
   systemd.services.tor = {
     requires = [ "dnsseedrs-netns.service" ];
     after = [ "dnsseedrs-netns.service" ];
-  };
-
-  systemd.services.arti = {
-    description = "Arti SOCKS proxy for DNS seed onion crawling";
-    wantedBy = [ "multi-user.target" ];
-    requires = [ "dnsseedrs-netns.service" ];
-    after = [
-      "dnsseedrs-netns.service"
-      "network-online.target"
-    ];
-    wants = [ "network-online.target" ];
-    serviceConfig = {
-      ExecStart = "${pkgs.arti}/bin/arti proxy -c ${artiConfig}";
-      DynamicUser = true;
-      StateDirectory = "arti";
-      CacheDirectory = "arti";
-      UMask = "0077";
-      Restart = "on-failure";
-      RestartSec = "10s";
-      NoNewPrivileges = true;
-      ProtectSystem = "strict";
-      ProtectHome = true;
-      PrivateTmp = true;
-      PrivateDevices = true;
-      ProtectKernelTunables = true;
-      ProtectKernelModules = true;
-      ProtectControlGroups = true;
-      RestrictSUIDSGID = true;
-      RestrictAddressFamilies = [
-        "AF_UNIX"
-        "AF_INET"
-        "AF_INET6"
-      ];
-    };
   };
 
   systemd.services.i2pd = {
