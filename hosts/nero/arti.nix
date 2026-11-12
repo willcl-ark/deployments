@@ -5,6 +5,8 @@ let
     storage = {
       cache_dir = "/var/cache/arti";
       state_dir = "/var/lib/arti";
+      # The crawlers use an explicit address, so no discovery file is needed.
+      port_info_file = "";
     };
   };
 
