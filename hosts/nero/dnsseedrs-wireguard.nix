@@ -62,7 +62,7 @@ in
   '';
 
   services.bitcoinDnsSeed.proxies = {
-    onionProxy = "${hostAddress}:9050";
+    onionProxy = "${hostAddress}:9150";
     i2pProxy = "${hostAddress}:4447";
   };
 

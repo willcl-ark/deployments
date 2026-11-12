@@ -23,6 +23,9 @@ in
     wants = [ "network-online.target" ];
     serviceConfig = {
       ExecStart = "${pkgs.arti}/bin/arti proxy -c ${artiConfig}";
+      # dnsseedrs disables onion crawling if its one-time startup probe fails.
+      ExecStartPost = "${pkgs.curl}/bin/curl --silent --show-error --head --output /dev/null --socks5-hostname 10.200.1.0:9150 --max-time 60 --retry 4 --retry-all-errors --retry-delay 5 http://duckduckgogg42xjoc72x3sjasowoarfbgcmvfimaftt6twagswzczad.onion/";
+      TimeoutStartSec = "6min";
       DynamicUser = true;
       StateDirectory = "arti";
       StateDirectoryMode = "0700";
@@ -46,5 +49,14 @@ in
         "AF_INET6"
       ];
     };
+  };
+
+  systemd.services.dnsseedrs-mainnet = {
+    requires = [ "arti.service" ];
+    after = [ "arti.service" ];
+  };
+  systemd.services.dnsseedrs-signet = {
+    requires = [ "arti.service" ];
+    after = [ "arti.service" ];
   };
 }
