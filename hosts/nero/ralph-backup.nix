@@ -12,6 +12,17 @@ let
     stateDir
     reportDir
   ];
+  databases = map (name: "${stateDir}/${name}") [
+    "jobs.sqlite3"
+    "usage.sqlite3"
+    "telegram.sqlite3"
+    "followup/assessments.sqlite3"
+    "followup/usage.sqlite3"
+    # These historical spend records were not migrated into the usage databases.
+    "spend.sqlite3"
+    "ppq-spend.sqlite3"
+    "followup/spend.sqlite3"
+  ];
 in
 {
   # Provision a private bucket and these secrets before importing this module.
@@ -25,7 +36,16 @@ in
     initialize = true;
     paths = sourceDirs ++ [ snapshotDir ];
     # SQLite snapshots live separately; never copy live databases or sidecars.
-    exclude = lib.concatMap (directory: [
+    exclude = [
+      "${stateDir}/**/checkout"
+      "${stateDir}/**/checkout.*"
+      "${stateDir}/ccache"
+      "${stateDir}/stats"
+      "${stateDir}/attempts"
+      "${stateDir}/status-html-refresh-*"
+      "${stateDir}/**/*.sqlite3.*"
+    ]
+    ++ lib.concatMap (directory: [
       "${directory}/**/*.sqlite"
       "${directory}/**/*.sqlite-wal"
       "${directory}/**/*.sqlite-shm"
@@ -53,10 +73,7 @@ in
       umask 077
       rm -rf ${lib.escapeShellArg snapshotDir}
       mkdir -p ${lib.escapeShellArg snapshotDir}
-      ${pkgs.findutils}/bin/find ${lib.escapeShellArgs sourceDirs} -type f \
-        \( -name '*.sqlite3' -o -name '*.sqlite' \) -print0 \
-        > /run/restic-backups-ralph/databases
-      while IFS= read -r -d $'\0' database; do
+      for database in ${lib.escapeShellArgs databases}; do
         destination=${lib.escapeShellArg snapshotDir}"$database"
         mkdir -p "$(dirname "$destination")"
         (
@@ -66,7 +83,7 @@ in
           test "$(${pkgs.sqlite}/bin/sqlite3 -readonly snapshot.tmp 'PRAGMA quick_check;')" = ok
           mv snapshot.tmp "$destination"
         )
-      done < /run/restic-backups-ralph/databases
+      done
     '';
   };
 
