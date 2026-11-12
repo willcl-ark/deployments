@@ -66,11 +66,6 @@ in
     i2pProxy = "${hostAddress}:4447";
   };
 
-  services.tor.client.socksListenAddress = {
-    addr = hostAddress;
-    port = 9050;
-    IsolateDestAddr = true;
-  };
   # The build check starts i2pd, but this veth address exists only on Nero.
   services.i2pd.checkConfig = false;
   services.i2pd.settings.socksproxy.address = hostAddress;
@@ -140,11 +135,6 @@ in
       ${ip} -n ${namespace} link set ${namespaceVeth} up
       ${ip} -n ${namespace} link set lo up
     '';
-  };
-
-  systemd.services.tor = {
-    requires = [ "dnsseedrs-netns.service" ];
-    after = [ "dnsseedrs-netns.service" ];
   };
 
   systemd.services.i2pd = {

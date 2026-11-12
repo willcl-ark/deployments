@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 let
   artiConfig = (pkgs.formats.toml { }).generate "arti.toml" {
     proxy.socks_listen = "10.200.1.0:9150";
@@ -12,6 +12,9 @@ let
 
 in
 {
+  # The shared seed module enables Tor alongside I2P; use Arti for onions here.
+  services.tor.enable = lib.mkForce false;
+
   systemd.services.arti = {
     description = "Arti SOCKS proxy for DNS seed onion crawling";
     wantedBy = [ "multi-user.target" ];
