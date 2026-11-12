@@ -487,7 +487,7 @@ in
   };
 
   systemd.timers.ralph-stats.timerConfig = {
-    OnUnitActiveSec = lib.mkForce "1m";
+    OnUnitActiveSec = lib.mkForce "5m";
     AccuracySec = "1s";
   };
 
