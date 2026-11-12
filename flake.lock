@@ -348,11 +348,11 @@
     "nero-dnsseedrs": {
       "flake": false,
       "locked": {
-        "lastModified": 1794307314,
-        "narHash": "sha256-Fm/yeNuIZkuKMVgYHwA5wqhQVame3bxhVP/nPoIYOb0=",
+        "lastModified": 1794476192,
+        "narHash": "sha256-kpVLVSb8nAhENuihWkshIAJlo/Vkt3ssqJFDgQ0LCQw=",
         "owner": "willcl-ark",
         "repo": "dnsseedrs",
-        "rev": "5651fa0201ade5ffd71a9718983acaa050c6207b",
+        "rev": "ab212f552f1eae585d16922986b0b17b5c827c8c",
         "type": "github"
       },
       "original": {
