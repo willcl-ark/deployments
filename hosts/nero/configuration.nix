@@ -408,10 +408,14 @@ in
     handle_path /report/* {
       root * ${config.services.ralph.reportDir}/reports
       header {
-        Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; script-src 'self'"
+        Content-Security-Policy "default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'"
         X-Content-Type-Options nosniff
       }
       file_server
+    }
+
+    handle /feedback/* {
+      reverse_proxy 127.0.0.1:8765
     }
 
     redir /traces /traces/
