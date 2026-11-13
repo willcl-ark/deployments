@@ -16,6 +16,7 @@ let
     "jobs.sqlite3"
     "usage.sqlite3"
     "telegram.sqlite3"
+    "feedback.sqlite3"
     "followup/assessments.sqlite3"
     "followup/usage.sqlite3"
     # These historical spend records were not migrated into the usage databases.

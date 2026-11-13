@@ -17,6 +17,10 @@ followed by their original absolute paths. Live database files and their
 WAL/SHM/journal files are excluded. Snapshots are consistent per database, not
 one atomic snapshot across all databases and reports.
 
+The database snapshot list includes `feedback.sqlite3`, containing finding
+votes, private explanations and triage status. It has the same encrypted R2
+backup and retention policy as the other Ralph state databases.
+
 Check `restic-backups-ralph.service` and `restic-backups-ralph.timer` with
 systemctl, and inspect the service journal after failures. A running timer alone
 does not prove a successful recent backup. The generated `restic-ralph` wrapper
