@@ -44,6 +44,7 @@
     variables_order = "EGPCS";
     upload_max_filesize = "192M";
     post_max_size = "256M";
+    memory_limit = "512M";
   };
   # The CDash module uses nginx for PHP-FPM; Caddy handles public HTTPS.
   services.nginx.virtualHosts.${host.domain} = {
