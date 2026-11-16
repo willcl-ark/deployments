@@ -396,7 +396,7 @@ in
     handle_path /stats/* {
       root * ${config.services.ralph.reportDir}/stats
       header {
-        Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; script-src 'self'; connect-src 'self'"
+        Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self'"
         X-Content-Type-Options nosniff
         Cache-Control "no-cache"
       }
@@ -408,8 +408,17 @@ in
     handle_path /report/* {
       root * ${config.services.ralph.reportDir}/reports
       header {
-        Content-Security-Policy "default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'"
+        Content-Security-Policy "default-src 'none'; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self'"
         X-Content-Type-Options nosniff
+      }
+      file_server
+    }
+
+    handle_path /fonts/* {
+      root * ${config.services.ralph.package}/share/ralph-service/fonts
+      header {
+        X-Content-Type-Options nosniff
+        Cache-Control "public, max-age=604800"
       }
       file_server
     }
@@ -423,9 +432,9 @@ in
       root * ${config.services.ralph.reportDir}
       header X-Content-Type-Options nosniff
       @history path_regexp ralph_history ^/(?:(?:[a-z][a-z0-9_-]*/)?[0-9]+/(?:index[.]html)?|index[.]html)?$
-      header @history Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; script-src 'self'; connect-src 'self'"
+      header @history Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self'"
       @report not path_regexp ^/(?:(?:[a-z][a-z0-9_-]*/)?[0-9]+/(?:index[.]html)?|index[.]html)?$
-      header @report Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; script-src 'self'"
+      header @report Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; font-src 'self'; script-src 'self'"
       file_server
     }
 
