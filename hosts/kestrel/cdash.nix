@@ -39,6 +39,19 @@
     };
   };
 
+  services.logrotate.settings.cdash = {
+    files = [ "${config.services.cdash.dataDir}/app/storage/logs/cdash.log" ];
+    frequency = "daily";
+    rotate = 14;
+    compress = true;
+    delaycompress = true;
+    missingok = true;
+    notifempty = true;
+    # Keep the long-running queue worker's open log handle valid.
+    copytruncate = true;
+    su = "cdash cdash";
+  };
+
   # Retain the source checkout's upload limits and submission timeouts.
   services.phpfpm.pools.cdash.phpOptions = lib.mkForce {
     variables_order = "EGPCS";
