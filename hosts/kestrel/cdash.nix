@@ -15,7 +15,15 @@
   services.cdash = {
     enable = true;
     # Laravel ignores MAIL_ENCRYPTION; require TLS before SMTP authentication.
-    package = (pkgs.callPackage (inputs.cdash-src + "/pkgs/cdash") { }).overrideAttrs (old: {
+    # The frontend is built from the same fetched source inside the package, so
+    # patch the source itself rather than the final derivation.
+    package = (pkgs.callPackage (inputs.cdash-src + "/pkgs/cdash") {
+      fetchFromGitHub = args: pkgs.applyPatches {
+        name = "cdash-source-patched";
+        src = pkgs.fetchFromGitHub args;
+        patches = [ ./patches/cdash-test-output-download.patch ];
+      };
+    }).overrideAttrs (old: {
       postInstall = (old.postInstall or "") + ''
         substituteInPlace "$out/share/php/cdash/config/mail.php" \
           --replace-fail "'transport' => 'smtp'," "'transport' => 'smtp', 'require_tls' => true,"

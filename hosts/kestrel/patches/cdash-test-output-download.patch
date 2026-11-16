@@ -1,0 +1,106 @@
+diff --git a/resources/js/vue/components/TestIdPage.vue b/resources/js/vue/components/TestIdPage.vue
+index 00ac8ce..7b421bd 100644
+--- a/resources/js/vue/components/TestIdPage.vue
++++ b/resources/js/vue/components/TestIdPage.vue
+@@ -289,12 +289,30 @@
+             />
+             Output
+           </span>
++          <button
++            v-if="hasOutput"
++            type="button"
++            class="tw-btn tw-btn-outline tw-btn-xs"
++            data-test="download-output"
++            @click="downloadOutput"
++          >
++            <FontAwesomeIcon :icon="FA.faDownload" />
++            Download full output
++          </button>
+         </div>
+         <div>
++          <div
++            v-if="hiddenOutputLineCount > 0"
++            class="tw-px-3 tw-py-1 tw-text-sm tw-text-neutral-500 tw-italic"
++            data-test="output-truncated-message"
++          >
++            Output too large to display in full: {{ hiddenOutputLineCount.toLocaleString() }} lines are hidden.
++            Download the full output to see everything.
++          </div>
+           <CodeBox
+             v-if="hasOutput"
+             id="test_output"
+-            :text="test.output"
++            :text="displayedOutput"
+             :bordered="false"
+           />
+           <div
+@@ -334,8 +352,14 @@ import {
+   faImages,
+   faChartLine,
+   faLink,
++  faDownload,
+ } from '@fortawesome/free-solid-svg-icons';
+ 
++// Browsers stop laying out elements beyond a maximum height (~17.9M px in
++// Firefox), so very large outputs are shown as head and tail only.
++const OUTPUT_HEAD_LINES = 20000;
++const OUTPUT_TAIL_LINES = 80000;
++
+ export default {
+   name: 'TestIdPage',
+ 
+@@ -460,6 +484,7 @@ export default {
+         faImages,
+         faChartLine,
+         faLink,
++        faDownload,
+       };
+     },
+ 
+@@ -485,6 +510,30 @@ export default {
+       return typeof this.test.output === 'string' && this.test.output.trim() !== '';
+     },
+ 
++    outputLines() {
++      return this.hasOutput ? this.test.output.split('\n') : [];
++    },
++
++    hiddenOutputLineCount() {
++      return Math.max(0, this.outputLines.length - OUTPUT_HEAD_LINES - OUTPUT_TAIL_LINES);
++    },
++
++    displayedOutput() {
++      if (this.hiddenOutputLineCount === 0) {
++        return this.test.output;
++      }
++      return [
++        ...this.outputLines.slice(0, OUTPUT_HEAD_LINES),
++        `[... ${this.hiddenOutputLineCount.toLocaleString()} lines hidden; download the full output to see them ...]`,
++        ...this.outputLines.slice(-OUTPUT_TAIL_LINES),
++      ].join('\n');
++    },
++
++    outputFileName() {
++      const name = [this.build.project.name, this.build.name, this.test.name, `build${this.build.id}`].join('_');
++      return `${name.replace(/[^A-Za-z0-9._-]+/g, '-')}.txt`;
++    },
++
+     hasEnvironment() {
+       return typeof this.environment === 'string' && this.environment.trim() !== '';
+     },
+@@ -624,6 +673,15 @@ export default {
+       $('.je_compare').je_compare({ caption: true });
+       this.jeCompareInitialized = true;
+     },
++
++    downloadOutput() {
++      const url = URL.createObjectURL(new Blob([this.test.output], { type: 'text/plain' }));
++      const link = document.createElement('a');
++      link.href = url;
++      link.download = this.outputFileName;
++      link.click();
++      setTimeout(() => URL.revokeObjectURL(url));
++    },
+   },
+ };
+ </script>
