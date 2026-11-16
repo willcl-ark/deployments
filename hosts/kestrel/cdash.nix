@@ -54,8 +54,8 @@
     '';
   };
   systemd.services.cdash-worker.serviceConfig.ExecStart = lib.mkForce (
-    "${config.services.cdash.package.phpPackage}/bin/php -d variables_order=EGPCS "
-    + "${config.services.cdash.dataDir}/app/artisan queue:work --timeout=2000 --max-time=3600 --memory=256"
+    "${config.services.cdash.package.phpPackage}/bin/php -d variables_order=EGPCS -d memory_limit=1G "
+    + "${config.services.cdash.dataDir}/app/artisan queue:work --timeout=2000 --max-time=3600 --memory=1024"
   );
 
   services.caddy = {
