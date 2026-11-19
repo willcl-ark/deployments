@@ -204,6 +204,7 @@ in
       boundClaims.repository = [
         "bitcoin/bitcoin"
         "willcl-ark/bitcoin"
+        "willcl-ark/bitcoin-core-nightly"
       ];
     };
 
