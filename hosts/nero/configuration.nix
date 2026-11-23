@@ -481,6 +481,10 @@ in
       botTokenFile = config.sops.secrets.ralph-telegram-token.path;
       chatId = "-1004496254448";
     };
+    postMortem = {
+      enable = true;
+      metadataDir = "/var/lib/github-metadata-backup/bitcoin/pulls";
+    };
     repositories.core = {
       origin = "${forgejoLocalUrl}/bitcoin/bitcoin.git";
       repository = "bitcoin/bitcoin";

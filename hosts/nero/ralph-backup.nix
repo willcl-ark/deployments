@@ -24,6 +24,11 @@ let
     "ppq-spend.sqlite3"
     "followup/spend.sqlite3"
   ];
+  # The weekly post-mortem creates these on its first run.
+  databasesAfterFirstRun = map (name: "${stateDir}/post-mortem/${name}") [
+    "post_mortem.sqlite3"
+    "usage.sqlite3"
+  ];
 in
 {
   # Provision a private bucket and these secrets before importing this module.
@@ -74,7 +79,11 @@ in
       umask 077
       rm -rf ${lib.escapeShellArg snapshotDir}
       mkdir -p ${lib.escapeShellArg snapshotDir}
-      for database in ${lib.escapeShellArgs databases}; do
+      databases=(${lib.escapeShellArgs databases})
+      for database in ${lib.escapeShellArgs databasesAfterFirstRun}; do
+        if [ -e "$database" ]; then databases+=("$database"); fi
+      done
+      for database in "''${databases[@]}"; do
         destination=${lib.escapeShellArg snapshotDir}"$database"
         mkdir -p "$(dirname "$destination")"
         (

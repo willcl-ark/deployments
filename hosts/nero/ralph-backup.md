@@ -17,6 +17,9 @@ followed by their original absolute paths. Live database files and their
 WAL/SHM/journal files are excluded. Snapshots are consistent per database, not
 one atomic snapshot across all databases and reports.
 
+The post-mortem cases, lessons and usage databases join the snapshot after their
+first run creates them.
+
 The database snapshot list includes `feedback.sqlite3`, containing finding
 votes, private explanations and triage status. It has the same encrypted R2
 backup and retention policy as the other Ralph state databases.
