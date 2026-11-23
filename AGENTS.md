@@ -18,4 +18,5 @@ Work may happen in worktrees, but `master` must always contain every deployed
 commit. Merge to `master` before running `switch` and run it from `master`, so
 the checkout always matches what is live. Commits pinned through a flake input
 must be on that repository's `master` too, with its main checkout (such as
-`~/src/nix`) fast-forwarded in the same step.
+`~/src/nix`) fast-forwarded in the same step. Always push `master` to GitHub after committing
+to it, in both repositories.
