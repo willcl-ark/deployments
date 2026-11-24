@@ -52,7 +52,7 @@ Both Nero switch recipes acquire the same local lock before syncing or building.
 Repeated invocations from this user on this workstation wait for the preceding
 one, including across repository checkouts. They also wait for a remote activation
 that survived an interrupted SSH connection or started before locking was added.
-The lock is held through activation, including Ralph's review drain. Waiting
+The lock is held through activation. Ralph's running reviews continue. Waiting
 commands use the working tree as it exists when they acquire the lock.
 Deployments from other workstations or direct nixos-rebuild commands are not
 covered; coordinate those separately.
