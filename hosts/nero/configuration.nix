@@ -397,6 +397,7 @@ in
     redir /stats /stats/
     handle_path /stats/* {
       root * ${config.services.ralph.reportDir}/stats
+      encode zstd gzip
       header {
         Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self'"
         X-Content-Type-Options nosniff
