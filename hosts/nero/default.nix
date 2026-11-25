@@ -28,7 +28,7 @@ in
         src = inputs.forgejo-src;
         vendorHash = "sha256-cb6f7ZX3pG95EEZotGXn6+YUJN59SFNVHFTejFJ6y28=";
         doCheck = false;
-        patches = (prev.forgejo.patches or [ ]) ++ [
+        patches = (prev.forgejo.patches or []) ++ [
           ./patches/ralph-comments.patch
           ./patches/forgejo-github-metadata-api-read.patch
           ./patches/forgejo-github-metadata-sync-webhook.patch

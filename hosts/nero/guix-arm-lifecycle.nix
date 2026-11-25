@@ -69,7 +69,9 @@ let
     done
   '';
 
-  armStopSource = pkgs.writeText "guix-bitcoin-arm-stop" (builtins.readFile ./guix-bitcoin-arm-stop);
+  armStopSource = pkgs.writeText "guix-bitcoin-arm-stop" (
+    builtins.readFile ./guix-bitcoin-arm-stop
+  );
   armStop = pkgs.writeShellScript "guix-bitcoin-arm-stop" ''
     export GUIX_BITCOIN_DATA_DIR=${lib.escapeShellArg cfg.dataDir}
     export GUIX_BITCOIN_ARM_ACTIVE_FILE=${lib.escapeShellArg activeFile}
