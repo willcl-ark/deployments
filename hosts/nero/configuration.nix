@@ -311,8 +311,8 @@ in
     };
   };
 
-  services.forgejo.settings.migrations.ALLOWED_DOMAINS = lib.mkForce
-    "github.com,*.github.com,git.fish.foo,github-production-user-asset-*.s3.amazonaws.com,cygwin.com,sourceware.org,gitlab.com,*.gitlab.com";
+  services.forgejo.settings.migrations.ALLOWED_DOMAINS =
+    lib.mkForce "github.com,*.github.com,git.fish.foo,github-production-user-asset-*.s3.amazonaws.com,cygwin.com,sourceware.org,gitlab.com,*.gitlab.com";
   services.forgejo.settings.migrations.ALLOW_LOCALNETWORKS = lib.mkForce true;
   services.forgejo.settings."git.config" = {
     "\"url.${forgejoLocalUrl}/willcl-ark/github-metadata-backup-bitcoin-bitcoin.git.insteadOf\"" =
@@ -339,8 +339,8 @@ in
     SCHEDULE = "@every 1h";
     OLDER_THAN = "1h";
   };
-  systemd.services.forgejo-dump.serviceConfig.ExecStart = lib.mkForce
-    "${lib.getExe config.services.forgejo.package} dump --type ${config.services.forgejo.dump.type} --skip-repo-archives";
+  systemd.services.forgejo-dump.serviceConfig.ExecStart =
+    lib.mkForce "${lib.getExe config.services.forgejo.package} dump --type ${config.services.forgejo.dump.type} --skip-repo-archives";
 
   systemd.services.forgejo.preStart = lib.mkAfter ''
     install -D -m 0644 ${./forgejo-custom/footer.tmpl} \

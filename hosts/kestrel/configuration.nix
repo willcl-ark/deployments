@@ -1,18 +1,27 @@
 { host, lib, ... }:
 
 {
-  boot.loader = if host.hardware.bootMode == "uefi" then {
-    grub.enable = false;
-    systemd-boot.enable = true;
-    efi.canTouchEfiVariables = false;
-  } else {
-    grub.enable = true;
-  };
+  boot.loader =
+    if host.hardware.bootMode == "uefi" then
+      {
+        grub.enable = false;
+        systemd-boot.enable = true;
+        efi.canTouchEfiVariables = false;
+      }
+    else
+      {
+        grub.enable = true;
+      };
 
-  assertions = [{
-    assertion = builtins.elem host.hardware.bootMode [ "bios" "uefi" ];
-    message = "hardware.bootMode must be bios or uefi";
-  }];
+  assertions = [
+    {
+      assertion = builtins.elem host.hardware.bootMode [
+        "bios"
+        "uefi"
+      ];
+      message = "hardware.bootMode must be bios or uefi";
+    }
+  ];
 
   networking = {
     hostName = host.hostName;
@@ -31,7 +40,8 @@
     root.hashedPassword = "!";
     # Administration uses satoshi with sudo, not root SSH.
     root.openssh.authorizedKeys.keyFiles = [ ];
-  } // lib.mapAttrs (_: keys: {
+  }
+  // lib.mapAttrs (_: keys: {
     isNormalUser = true;
     extraGroups = [ "wheel" ];
     hashedPassword = "!";

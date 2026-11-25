@@ -1,4 +1,11 @@
-{ config, host, inputs, lib, pkgs, ... }:
+{
+  config,
+  host,
+  inputs,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
   sops = {
@@ -17,20 +24,24 @@
     # Laravel ignores MAIL_ENCRYPTION; require TLS before SMTP authentication.
     # The frontend is built from the same fetched source inside the package, so
     # patch the source itself rather than the final derivation.
-    package = (pkgs.callPackage (inputs.cdash-src + "/pkgs/cdash") {
-      fetchFromGitHub = args: pkgs.applyPatches {
-        name = "cdash-source-patched";
-        src = pkgs.fetchFromGitHub args;
-        patches = [ ./patches/cdash-test-output-download.patch ];
-      };
-    }).overrideAttrs (old: {
-      postInstall = (old.postInstall or "") + ''
-        substituteInPlace "$out/share/php/cdash/config/mail.php" \
-          --replace-fail "'transport' => 'smtp'," "'transport' => 'smtp', 'require_tls' => true,"
-        substituteInPlace "$out/share/php/cdash/config/session.php" \
-          --replace-fail "'secure' => false," "'secure' => true,"
-      '';
-    });
+    package =
+      (pkgs.callPackage (inputs.cdash-src + "/pkgs/cdash") {
+        fetchFromGitHub =
+          args:
+          pkgs.applyPatches {
+            name = "cdash-source-patched";
+            src = pkgs.fetchFromGitHub args;
+            patches = [ ./patches/cdash-test-output-download.patch ];
+          };
+      }).overrideAttrs
+        (old: {
+          postInstall = (old.postInstall or "") + ''
+            substituteInPlace "$out/share/php/cdash/config/mail.php" \
+              --replace-fail "'transport' => 'smtp'," "'transport' => 'smtp', 'require_tls' => true,"
+            substituteInPlace "$out/share/php/cdash/config/session.php" \
+              --replace-fail "'secure' => false," "'secure' => true,"
+          '';
+        });
     hostName = host.domain;
     appUrl = "https://${host.domain}";
     appKeyFile = config.sops.secrets.cdash-app-key.path;
@@ -69,7 +80,12 @@
   };
   # The CDash module uses nginx for PHP-FPM; Caddy handles public HTTPS.
   services.nginx.virtualHosts.${host.domain} = {
-    listen = [ { addr = "127.0.0.1"; port = 8080; } ];
+    listen = [
+      {
+        addr = "127.0.0.1";
+        port = 8080;
+      }
+    ];
     extraConfig = "client_max_body_size 256m;";
     locations."= /index.php".extraConfig = lib.mkAfter ''
       fastcgi_read_timeout 2000s;
@@ -87,5 +103,8 @@
       reverse_proxy 127.0.0.1:8080
     '';
   };
-  networking.firewall.allowedTCPPorts = [ 80 443 ];
+  networking.firewall.allowedTCPPorts = [
+    80
+    443
+  ];
 }

@@ -27,7 +27,6 @@ in
   boot.loader.grub.efiSupport = true;
   boot.loader.grub.efiInstallAsRemovable = true;
 
-
   networking.hostName = settings.hostName;
   networking.useDHCP = false;
   networking.interfaces.${settings.networkInterface}.ipv4.addresses = [

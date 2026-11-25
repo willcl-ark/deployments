@@ -60,6 +60,5 @@
     443
   ];
 
-
   system.stateVersion = "25.11";
 }
