@@ -49,6 +49,13 @@
       ../secrets/nero/dnssec/signet/Kseed.signet.bitcoin.fish.foo.+013+32912.key
       ../secrets/nero/dnssec/signet/Kseed.signet.bitcoin.fish.foo.+013+32912.private
     ];
+
+    testnet5.dnssecKeyFiles = [
+      ../secrets/nero/dnssec/testnet5/Kseed.testnet5.bitcoin.fish.foo.+013+37554.key
+      ../secrets/nero/dnssec/testnet5/Kseed.testnet5.bitcoin.fish.foo.+013+37554.private
+      ../secrets/nero/dnssec/testnet5/Kseed.testnet5.bitcoin.fish.foo.+013+64829.key
+      ../secrets/nero/dnssec/testnet5/Kseed.testnet5.bitcoin.fish.foo.+013+64829.private
+    ];
   };
 
   networking.firewall.allowedTCPPorts = [

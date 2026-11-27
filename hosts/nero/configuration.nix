@@ -83,6 +83,15 @@ in
     ];
     threads = 8;
   };
+  services.bitcoinDnsSeed.testnet5 = {
+    enable = true;
+    seedNodes = [
+      "148.51.196.40:18353"
+      "175.45.182.145:18353"
+      "198.206.204.50:18353"
+    ];
+    threads = 8;
+  };
 
   services.stuntman.enable = true;
 

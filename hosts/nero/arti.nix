@@ -62,4 +62,8 @@ in
     requires = [ "arti.service" ];
     after = [ "arti.service" ];
   };
+  systemd.services.dnsseedrs-testnet5 = {
+    requires = [ "arti.service" ];
+    after = [ "arti.service" ];
+  };
 }

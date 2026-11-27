@@ -52,6 +52,13 @@ in
       log
     }
 
+    ${cfg.testnet5.seedDomain}:53 {
+      bind ${lib.concatStringsSep " " cfg.coredns.bindAddresses}
+      forward . ${namespaceAddress}:${toString cfg.testnet5.dnsPort}
+      any
+      log
+    }
+
     .:53 {
       bind ${lib.concatStringsSep " " cfg.coredns.bindAddresses}
       template ANY ANY {
@@ -111,6 +118,7 @@ in
       "wireguard-${wireguardInterface}.service"
       "dnsseedrs-mainnet.service"
       "dnsseedrs-signet.service"
+      "dnsseedrs-testnet5.service"
     ];
     serviceConfig = {
       Type = "oneshot";
@@ -160,6 +168,7 @@ in
     unitConfig.Before = [
       "dnsseedrs-mainnet.service"
       "dnsseedrs-signet.service"
+      "dnsseedrs-testnet5.service"
     ];
     serviceConfig = {
       Type = "oneshot";
@@ -180,6 +189,10 @@ in
     "udp://${namespaceAddress}:${toString cfg.signet.dnsPort}"
     "tcp://${namespaceAddress}:${toString cfg.signet.dnsPort}"
   ];
+  services.dnsseedrs.testnet5.bind = lib.mkForce [
+    "udp://${namespaceAddress}:${toString cfg.testnet5.dnsPort}"
+    "tcp://${namespaceAddress}:${toString cfg.testnet5.dnsPort}"
+  ];
 
   systemd.services.dnsseedrs-mainnet = {
     requires = [
@@ -199,6 +212,23 @@ in
   };
 
   systemd.services.dnsseedrs-signet = {
+    requires = [
+      "dnsseedrs-netns.service"
+      "dnsseedrs-routing.service"
+    ];
+    after = [
+      "dnsseedrs-netns.service"
+      "dnsseedrs-routing.service"
+    ];
+    serviceConfig = {
+      NetworkNamespacePath = "/run/netns/${namespace}";
+      BindReadOnlyPaths = [
+        "/etc/netns/${namespace}/resolv.conf:/etc/resolv.conf"
+      ];
+    };
+  };
+
+  systemd.services.dnsseedrs-testnet5 = {
     requires = [
       "dnsseedrs-netns.service"
       "dnsseedrs-routing.service"
