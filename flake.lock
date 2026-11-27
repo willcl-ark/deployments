@@ -348,11 +348,11 @@
     "nero-dnsseedrs": {
       "flake": false,
       "locked": {
-        "lastModified": 1794476192,
-        "narHash": "sha256-kpVLVSb8nAhENuihWkshIAJlo/Vkt3ssqJFDgQ0LCQw=",
+        "lastModified": 1795793687,
+        "narHash": "sha256-e3n7dP+790SqakiOQ6fGO5WsQ/BY5bsVbH4VoTVYuG4=",
         "owner": "willcl-ark",
         "repo": "dnsseedrs",
-        "rev": "ab212f552f1eae585d16922986b0b17b5c827c8c",
+        "rev": "1de56a6910cbb186c24cf3022667b590226d3483",
         "type": "github"
       },
       "original": {
@@ -409,11 +409,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1795792147,
-        "narHash": "sha256-VbiFdpDoZrSr0thODVYdU3OKLlFdo5v1n0RLdl3a6Mc=",
+        "lastModified": 1795794183,
+        "narHash": "sha256-zgZLGuiuORuq8+w+A4WJHfLXKN87BiwRarVzho8gGUQ=",
         "owner": "willcl-ark",
         "repo": "nix",
-        "rev": "47425608130e5f0c3e4061933c365c690bceeb36",
+        "rev": "d9a456bf0303af709c14c396842034e8658d5e76",
         "type": "github"
       },
       "original": {
